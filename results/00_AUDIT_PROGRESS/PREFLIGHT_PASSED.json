@@ -1,0 +1,24 @@
+{
+  "status": "PASSED",
+  "time_local": "2026-11-03 10:26:08",
+  "gpu": {
+    "gpu": "NVIDIA GeForce RTX 4060 Ti",
+    "torch": "2.5.1+cu121",
+    "cuda": "12.1",
+    "free_gb": 6.9091796875,
+    "total_gb": 7.99560546875,
+    "min_total_gb": 7.5,
+    "min_free_gb": 6.0,
+    "concurrent_smoke_workers": 3
+  },
+  "gymnasium": "0.29.1",
+  "experiment_source_sha256": "f2afbf10b4cb2091c055ce968ddb8b47236797e3b894040dd1b1721066f2dfd5",
+  "main_hqc_sac": "reused_existing_400EP_x3",
+  "smoke_methods": [
+    "CDA_SAC_ADAPTED",
+    "RECURSIVE_CREDIT_H128",
+    "MOTION_ONLY",
+    "POWER_ONLY"
+  ],
+  "pi_bcd_sca": "5-slot CPU pilot completed"
+}

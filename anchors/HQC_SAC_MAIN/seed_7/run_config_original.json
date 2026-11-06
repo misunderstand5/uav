@@ -1,0 +1,134 @@
+{
+  "seed": 7,
+  "episodes": 400,
+  "device": "cuda",
+  "contract": {
+    "algorithm": "branch_credit_sac",
+    "training_intervention": "full",
+    "scheduler_mode": "age_weighted_maxcost_1swap",
+    "service_reward_mode": "age_penalized_v1",
+    "lambda_per_s": 0.1,
+    "episode_steps": 400,
+    "dt_s": 0.5,
+    "episode_duration_s": 200.0,
+    "active_relays": 4,
+    "max_relays": 4,
+    "area_half_width_m": 250.0,
+    "area_width_m": 500.0,
+    "initial_c_xyz_m": [
+      250.0,
+      0.0,
+      150.0
+    ],
+    "training_domain_randomization_interval": 0,
+    "training_domain_randomization_map_width_m_choices": [
+      500.0
+    ],
+    "training_topology_exposure_interval": 0,
+    "dynamic_workload_contract": {
+      "area_half_width_m": 250.0,
+      "initial_users": 20,
+      "max_users": 130,
+      "dynamic_users": true,
+      "dynamic_load_profile": "persistent_session_surge",
+      "qos_mbps": [
+        0.7,
+        2.0,
+        2.5
+      ],
+      "qos_probabilities": [
+        0.45,
+        0.35,
+        0.2
+      ],
+      "strict_qos_reference": "minimum_qos",
+      "user_spawn_mode": "uniform",
+      "user_motion_mode": "paper_iid_slot",
+      "user_max_speed_mps": 6.0,
+      "clustering_mode": "paper_kmeans_pp",
+      "hotspot_migration": false,
+      "relay_initialization_mode": "co_located",
+      "relay_initial_xy_m": [
+        0.0,
+        0.0
+      ],
+      "initial_active_relays": 4,
+      "min_active_relays": 4,
+      "max_relays": 4,
+      "m_max_speed_mps": 25.0,
+      "m_max_accel_mps2": 5.0,
+      "dynamic_baseline_users_persistent": true,
+      "surge_phase_timebase_mode": "physical_seconds",
+      "surge_normal_end_s_range": [
+        36.0,
+        44.0
+      ],
+      "surge_ramp_end_s_range": [
+        96.0,
+        104.0
+      ],
+      "surge_peak_end_s_range": [
+        136.0,
+        144.0
+      ],
+      "surge_arrival_rates_per_s": [
+        0.03,
+        1.35,
+        0.1,
+        0.0
+      ],
+      "user_session_min_s": 45.0,
+      "user_session_gamma_shape": 2.0,
+      "user_session_gamma_scale_s": 12.5,
+      "user_session_max_s": 120.0,
+      "map_width_m": 500.0,
+      "training_domain_randomization_interval": 0,
+      "training_domain_randomization_map_width_m_choices": [
+        500.0
+      ],
+      "training_domain_randomization_k_choices": [
+        4
+      ],
+      "training_topology_exposure_interval": 0,
+      "elastic_fleet_enabled": false
+    },
+    "qos_mbps": [
+      0.7,
+      2.0,
+      2.5
+    ],
+    "qos_probabilities": [
+      0.45,
+      0.35,
+      0.2
+    ],
+    "dynamic_users": true,
+    "dynamic_load_profile": "persistent_session_surge",
+    "initial_users": 20,
+    "max_users": 130,
+    "user_spawn_mode": "uniform",
+    "user_motion_mode": "paper_iid_slot",
+    "clustering_mode": "paper_kmeans_pp",
+    "acc_reg_weight": 0.0,
+    "motion_arch": "shared_relay",
+    "power_arch": "shared_relay",
+    "motion_hidden_dim": 128,
+    "power_hidden_dim": 128,
+    "power_credit_mode": "immediate",
+    "actor_obs": "state_u98c",
+    "critic_obs": "state_u98c",
+    "replay_obs": "state_u98c"
+  },
+  "evaluation_seeds": [
+    9000,
+    9001,
+    9002,
+    9003,
+    9004,
+    9005,
+    9006,
+    9007,
+    9008,
+    9009
+  ]
+}

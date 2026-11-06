@@ -1,0 +1,23 @@
+% Table VI: Scheduler per-slot runtime (E2)
+% Requires: \usepackage{booktabs}
+\begin{table}[t]
+\centering
+\caption{Per-slot scheduler runtime (1{,}200 recorded slots per mode, best of 5 runs). Classical modes replace only the scheduler. Proposed row in bold.}
+\label{tab:runtime}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Scheduler & Mean (ms) & P50 (ms) & P95 (ms) & Max (ms) \\
+\midrule
+\textbf{ROCS-0 (proposed)} & \textbf{0.534} & 0.394 & 1.182 & 1.690 \\
+w/o age term & 0.403 & 0.346 & 0.712 & 0.936 \\
+w/o 1-swap & 0.283 & 0.279 & 0.415 & 0.589 \\
+Max-CQI & 0.228 & 0.223 & 0.373 & 0.654 \\
+Proportional-fair & 0.230 & 0.225 & 0.376 & 0.441 \\
+Max-QoS & 0.206 & 0.199 & 0.343 & 0.440 \\
+Equal-share & 0.210 & 0.199 & 0.347 & 0.465 \\
+\bottomrule
+\end{tabular}
+\begin{flushleft}\footnotesize
+Runtime is per slot and per method over the whole network (all $K=4$ relays scheduled sequentially); the 200~ms slot budget leaves headroom of more than two orders of magnitude. The 1-swap stage accounts for most of the proposed scheduler's cost and is bounded by a constant number of swap evaluations per slot.
+\end{flushleft}
+\end{table}

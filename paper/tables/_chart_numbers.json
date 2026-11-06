@@ -1,0 +1,963 @@
+{
+ "per_seed": {
+  "CDA_SAC_ADAPTED": {
+   "7": {
+    "P95": 17.12,
+    "obj": 0.6947
+   },
+   "17": {
+    "P95": 15.88,
+    "obj": 0.6868
+   },
+   "27": {
+    "P95": 20.79,
+    "obj": 0.6455
+   }
+  },
+  "HQC_SAC_MAIN": {
+   "7": {
+    "P95": 10.58,
+    "obj": 0.7643
+   },
+   "17": {
+    "P95": 10.07,
+    "obj": 0.7637
+   },
+   "27": {
+    "P95": 9.65,
+    "obj": 0.7917
+   }
+  },
+  "HQC_SAC_NO_1SWAP": {
+   "7": {
+    "P95": 16.46,
+    "obj": 0.7139
+   },
+   "17": {
+    "P95": 14.67,
+    "obj": 0.7503
+   },
+   "27": {
+    "P95": 13.23,
+    "obj": 0.7792
+   }
+  },
+  "HQC_SAC_NO_AGE": {
+   "7": {
+    "P95": 66.69,
+    "obj": 0.4518
+   },
+   "17": {
+    "P95": 67.64,
+    "obj": 0.3965
+   },
+   "27": {
+    "P95": 64.39,
+    "obj": 0.4361
+   }
+  },
+  "PPO": {
+   "7": {
+    "P95": 16.32,
+    "obj": 0.699
+   },
+   "17": {
+    "P95": 25.38,
+    "obj": 0.6144
+   },
+   "27": {
+    "P95": 19.31,
+    "obj": 0.6706
+   }
+  },
+  "RECURSIVE_CREDIT_H128": {
+   "7": {
+    "P95": 20.16,
+    "obj": 0.6671
+   },
+   "17": {
+    "P95": 18.52,
+    "obj": 0.6872
+   },
+   "27": {
+    "P95": 12.46,
+    "obj": 0.7157
+   }
+  },
+  "TD3": {
+   "7": {
+    "P95": 12.26,
+    "obj": 0.7338
+   },
+   "17": {
+    "P95": 16.92,
+    "obj": 0.7019
+   },
+   "27": {
+    "P95": 11.89,
+    "obj": 0.7305
+   }
+  }
+ },
+ "e3": {
+  "HQC_SAC_MAIN": {
+   "device": "cpu",
+   "max_ms": "2.2398000000976026",
+   "mean_ms": "1.3634738001273945",
+   "method": "HQC_SAC_MAIN",
+   "n": "500",
+   "offline_critic_params": "242180",
+   "online_networks": "motion_actor+power_actor",
+   "online_params": "123271",
+   "p50_ms": "1.3544999819714576",
+   "p95_ms": "1.6614849650068209",
+   "p99_ms": "1.986530991271138"
+  },
+  "TD3": {
+   "device": "cpu",
+   "max_ms": "1.6145000117830932",
+   "mean_ms": "1.0278880011755973",
+   "method": "TD3",
+   "n": "500",
+   "offline_critic_params": "268034",
+   "online_networks": "actor",
+   "online_params": "104068",
+   "p50_ms": "1.0219500109087676",
+   "p95_ms": "1.295275022857822",
+   "p99_ms": "1.4774450141703708"
+  },
+  "PPO": {
+   "device": "cpu",
+   "max_ms": "4.424799990374595",
+   "mean_ms": "2.0062427994562313",
+   "method": "PPO",
+   "n": "500",
+   "offline_critic_params": "0",
+   "online_networks": "actor",
+   "online_params": "229835",
+   "p50_ms": "2.0136999955866486",
+   "p95_ms": "2.425700015737675",
+   "p99_ms": "2.6866759645054112"
+  },
+  "CDA_SAC_ADAPTED": {
+   "device": "cpu",
+   "max_ms": "1.5169999678619206",
+   "mean_ms": "0.8473056008806452",
+   "method": "CDA_SAC_ADAPTED",
+   "n": "500",
+   "offline_critic_params": "243348",
+   "online_networks": "motion_actor+power_actor",
+   "online_params": "121897",
+   "p50_ms": "0.8531500061508268",
+   "p95_ms": "1.0501549637410788",
+   "p99_ms": "1.227419030619785"
+  },
+  "RECURSIVE_CREDIT_H128": {
+   "device": "cpu",
+   "max_ms": "2.07880005473271",
+   "mean_ms": "1.361078999005258",
+   "method": "RECURSIVE_CREDIT_H128",
+   "n": "500",
+   "offline_critic_params": "242180",
+   "online_networks": "motion_actor+power_actor",
+   "online_params": "123271",
+   "p50_ms": "1.3583000109065324",
+   "p95_ms": "1.679495035205036",
+   "p99_ms": "1.9066679646493865"
+  },
+  "FLAT_RELAY_IMMEDIATE": {
+   "device": "cpu",
+   "max_ms": "1.1693999986164272",
+   "mean_ms": "0.8304329982493073",
+   "method": "FLAT_RELAY_IMMEDIATE",
+   "n": "500",
+   "offline_critic_params": "243348",
+   "online_networks": "motion_actor+power_actor",
+   "online_params": "121897",
+   "p50_ms": "0.851849967148155",
+   "p95_ms": "1.0274600208504125",
+   "p99_ms": "1.0950600140495226"
+  },
+  "JOINT_SAC_PM": {
+   "device": "cpu",
+   "max_ms": "1.2030000216327608",
+   "mean_ms": "0.7921899998327717",
+   "method": "JOINT_SAC_PM",
+   "n": "500",
+   "offline_critic_params": "225128",
+   "online_networks": "actor",
+   "online_params": "113763",
+   "p50_ms": "0.8072000346146524",
+   "p95_ms": "0.976329983677715",
+   "p99_ms": "1.0771079920232294"
+  },
+  "MOTION_ONLY": {
+   "device": "cpu",
+   "max_ms": "1.9360000151209533",
+   "mean_ms": "1.3353617992252111",
+   "method": "MOTION_ONLY",
+   "n": "500",
+   "offline_critic_params": "242180",
+   "online_networks": "motion_actor",
+   "online_params": "61062",
+   "p50_ms": "1.347700017504394",
+   "p95_ms": "1.552505002473481",
+   "p99_ms": "1.6798869846388695"
+  },
+  "POWER_ONLY": {
+   "device": "cpu",
+   "max_ms": "1.9694000366143882",
+   "mean_ms": "1.3977027992950752",
+   "method": "POWER_ONLY",
+   "n": "500",
+   "offline_critic_params": "242180",
+   "online_networks": "power_actor",
+   "online_params": "62209",
+   "p50_ms": "1.4081000117585063",
+   "p95_ms": "1.650084991706535",
+   "p99_ms": "1.7945709842024369"
+  }
+ },
+ "e2": {
+  "age_weighted_maxcost_1swap": {
+   "mode": "age_weighted_maxcost_1swap",
+   "n_calls": "1200",
+   "mean_ms": "0.5343654166666667",
+   "p50_ms": "0.39385000000000003",
+   "p95_ms": "1.1815649999999998",
+   "p99_ms": "1.354001",
+   "max_ms": "1.6901"
+  },
+  "rocs0_no_age": {
+   "mode": "rocs0_no_age",
+   "n_calls": "1200",
+   "mean_ms": "0.4031931666666667",
+   "p50_ms": "0.34555",
+   "p95_ms": "0.71242",
+   "p99_ms": "0.812117",
+   "max_ms": "0.9362"
+  },
+  "rocs0_no_1swap": {
+   "mode": "rocs0_no_1swap",
+   "n_calls": "1200",
+   "mean_ms": "0.2828098333333333",
+   "p50_ms": "0.27935",
+   "p95_ms": "0.415115",
+   "p99_ms": "0.435411",
+   "max_ms": "0.5887"
+  },
+  "max_cqi": {
+   "mode": "max_cqi",
+   "n_calls": "1200",
+   "mean_ms": "0.22799524999999998",
+   "p50_ms": "0.2233",
+   "p95_ms": "0.373405",
+   "p99_ms": "0.40191099999999996",
+   "max_ms": "0.6544"
+  },
+  "pf": {
+   "mode": "pf",
+   "n_calls": "1200",
+   "mean_ms": "0.23017258333333335",
+   "p50_ms": "0.22485",
+   "p95_ms": "0.376005",
+   "p99_ms": "0.40280299999999997",
+   "max_ms": "0.4409"
+  },
+  "max_qos": {
+   "mode": "max_qos",
+   "n_calls": "1200",
+   "mean_ms": "0.20646258333333334",
+   "p50_ms": "0.19940000000000002",
+   "p95_ms": "0.34281",
+   "p99_ms": "0.365227",
+   "max_ms": "0.4395"
+  },
+  "equal_share": {
+   "mode": "equal_share",
+   "n_calls": "1200",
+   "mean_ms": "0.2103644166666667",
+   "p50_ms": "0.19935",
+   "p95_ms": "0.347225",
+   "p99_ms": "0.37020499999999995",
+   "max_ms": "0.465"
+  }
+ },
+ "e4": {
+  "HQC_SAC_MAIN": {
+   "QSR": 0.8096,
+   "Goodput_Mbps": 50.8,
+   "c_phys_energy_j": 88938.0,
+   "m_energy_j": 131950.3,
+   "total_energy_j": 220888.3,
+   "c_path_m": 541.1,
+   "QSR_per_J": 0.0,
+   "bits_per_J": 45954.6,
+   "c_phys_energy_share": 0.4
+  },
+  "TD3": {
+   "QSR": 0.7663,
+   "Goodput_Mbps": 46.2,
+   "c_phys_energy_j": 89811.0,
+   "m_energy_j": 131950.3,
+   "total_energy_j": 221761.3,
+   "c_path_m": 567.6,
+   "QSR_per_J": 0.0,
+   "bits_per_J": 41715.0,
+   "c_phys_energy_share": 0.4
+  },
+  "CDA_SAC_ADAPTED": {
+   "QSR": 0.739,
+   "Goodput_Mbps": 44.3,
+   "c_phys_energy_j": 88877.0,
+   "m_energy_j": 131950.3,
+   "total_energy_j": 220827.3,
+   "c_path_m": 465.3,
+   "QSR_per_J": 0.0,
+   "bits_per_J": 40126.6,
+   "c_phys_energy_share": 0.4
+  },
+  "PPO": {
+   "QSR": 0.738,
+   "Goodput_Mbps": 42.8,
+   "c_phys_energy_j": 90321.3,
+   "m_energy_j": 131950.3,
+   "total_energy_j": 222271.5,
+   "c_path_m": 796.1,
+   "QSR_per_J": 0.0,
+   "bits_per_J": 38529.7,
+   "c_phys_energy_share": 0.4
+  }
+ },
+ "obj_ci": {
+  "CDA_SAC_ADAPTED": {
+   "mean": 0.6757,
+   "lo": 0.6672,
+   "hi": 0.6841
+  },
+  "HQC_SAC_MAIN": {
+   "mean": 0.7733,
+   "lo": 0.7677,
+   "hi": 0.7788
+  },
+  "HQC_SAC_NO_1SWAP": {
+   "mean": 0.7478,
+   "lo": 0.7411,
+   "hi": 0.7543
+  },
+  "HQC_SAC_NO_AGE": {
+   "mean": 0.4281,
+   "lo": 0.4103,
+   "hi": 0.4456
+  },
+  "PPO": {
+   "mean": 0.6613,
+   "lo": 0.6537,
+   "hi": 0.6688
+  },
+  "RECURSIVE_CREDIT_H128": {
+   "mean": 0.69,
+   "lo": 0.6826,
+   "hi": 0.6973
+  },
+  "TD3": {
+   "mean": 0.7221,
+   "lo": 0.7154,
+   "hi": 0.7282
+  }
+ },
+ "relay_load": {
+  "methods": {
+   "HQC_SAC_MAIN": {
+    "relay_means": {
+     "1": {
+      "acc_load": 0.966,
+      "bh_load": 1.232,
+      "users": 11.96,
+      "power": 1.953,
+      "qsr": 0.7621,
+      "goodput": 11.3
+     },
+     "2": {
+      "acc_load": 1.046,
+      "bh_load": 1.147,
+      "users": 12.93,
+      "power": 1.572,
+      "qsr": 0.782,
+      "goodput": 12.4
+     },
+     "3": {
+      "acc_load": 1.001,
+      "bh_load": 0.833,
+      "users": 12.48,
+      "power": 0.764,
+      "qsr": 0.851,
+      "goodput": 13.59
+     },
+     "4": {
+      "acc_load": 1.033,
+      "bh_load": 0.78,
+      "users": 12.64,
+      "power": 0.711,
+      "qsr": 0.8539,
+      "goodput": 13.64
+     }
+    },
+    "jain": {
+     "acc_load": 0.9991,
+     "bh_load": 0.9632,
+     "users": 0.9992,
+     "power": 0.8475,
+     "qsr": 0.9975,
+     "goodput": 0.9943
+    }
+   },
+   "HQC_SAC_NO_1SWAP": {
+    "relay_means": {
+     "1": {
+      "acc_load": 0.966,
+      "bh_load": 1.281,
+      "users": 11.96,
+      "power": 1.89,
+      "qsr": 0.7587,
+      "goodput": 10.89
+     },
+     "2": {
+      "acc_load": 1.046,
+      "bh_load": 1.174,
+      "users": 12.93,
+      "power": 1.482,
+      "qsr": 0.7831,
+      "goodput": 12.14
+     },
+     "3": {
+      "acc_load": 1.001,
+      "bh_load": 0.88,
+      "users": 12.48,
+      "power": 0.834,
+      "qsr": 0.8443,
+      "goodput": 13.34
+     },
+     "4": {
+      "acc_load": 1.033,
+      "bh_load": 0.81,
+      "users": 12.64,
+      "power": 0.793,
+      "qsr": 0.8507,
+      "goodput": 13.59
+     }
+    },
+    "jain": {
+     "acc_load": 0.9991,
+     "bh_load": 0.9653,
+     "users": 0.9992,
+     "power": 0.8809,
+     "qsr": 0.9976,
+     "goodput": 0.9926
+    }
+   },
+   "HQC_SAC_NO_AGE": {
+    "relay_means": {
+     "1": {
+      "acc_load": 0.966,
+      "bh_load": 1.206,
+      "users": 11.96,
+      "power": 1.698,
+      "qsr": 0.7807,
+      "goodput": 11.36
+     },
+     "2": {
+      "acc_load": 1.046,
+      "bh_load": 1.108,
+      "users": 12.93,
+      "power": 1.434,
+      "qsr": 0.7945,
+      "goodput": 12.51
+     },
+     "3": {
+      "acc_load": 1.001,
+      "bh_load": 0.872,
+      "users": 12.48,
+      "power": 0.896,
+      "qsr": 0.8429,
+      "goodput": 13.44
+     },
+     "4": {
+      "acc_load": 1.033,
+      "bh_load": 0.897,
+      "users": 12.64,
+      "power": 0.973,
+      "qsr": 0.8349,
+      "goodput": 13.21
+     }
+    },
+    "jain": {
+     "acc_load": 0.9991,
+     "bh_load": 0.9813,
+     "users": 0.9992,
+     "power": 0.9347,
+     "qsr": 0.999,
+     "goodput": 0.9959
+    }
+   },
+   "TD3": {
+    "relay_means": {
+     "1": {
+      "acc_load": 0.966,
+      "bh_load": 1.395,
+      "users": 11.96,
+      "power": 1.417,
+      "qsr": 0.7487,
+      "goodput": 11.02
+     },
+     "2": {
+      "acc_load": 1.046,
+      "bh_load": 1.216,
+      "users": 12.93,
+      "power": 1.234,
+      "qsr": 0.7714,
+      "goodput": 12.21
+     },
+     "3": {
+      "acc_load": 1.001,
+      "bh_load": 1.152,
+      "users": 12.48,
+      "power": 1.133,
+      "qsr": 0.7871,
+      "goodput": 12.02
+     },
+     "4": {
+      "acc_load": 1.033,
+      "bh_load": 1.177,
+      "users": 12.64,
+      "power": 1.215,
+      "qsr": 0.7777,
+      "goodput": 11.76
+     }
+    },
+    "jain": {
+     "acc_load": 0.9991,
+     "bh_load": 0.9941,
+     "users": 0.9992,
+     "power": 0.9932,
+     "qsr": 0.9997,
+     "goodput": 0.9985
+    }
+   },
+   "PPO": {
+    "relay_means": {
+     "1": {
+      "acc_load": 0.966,
+      "bh_load": 1.186,
+      "users": 11.96,
+      "power": 1.315,
+      "qsr": 0.7646,
+      "goodput": 11.31
+     },
+     "2": {
+      "acc_load": 1.046,
+      "bh_load": 1.126,
+      "users": 12.93,
+      "power": 1.271,
+      "qsr": 0.7732,
+      "goodput": 12.13
+     },
+     "3": {
+      "acc_load": 1.001,
+      "bh_load": 1.376,
+      "users": 12.48,
+      "power": 1.193,
+      "qsr": 0.7453,
+      "goodput": 10.57
+     },
+     "4": {
+      "acc_load": 1.033,
+      "bh_load": 1.638,
+      "users": 12.64,
+      "power": 1.221,
+      "qsr": 0.6944,
+      "goodput": 9.52
+     }
+    },
+    "jain": {
+     "acc_load": 0.9991,
+     "bh_load": 0.978,
+     "users": 0.9992,
+     "power": 0.9986,
+     "qsr": 0.9983,
+     "goodput": 0.9923
+    }
+   },
+   "CDA_SAC_ADAPTED": {
+    "relay_means": {
+     "1": {
+      "acc_load": 0.966,
+      "bh_load": 1.466,
+      "users": 11.96,
+      "power": 1.375,
+      "qsr": 0.7281,
+      "goodput": 10.71
+     },
+     "2": {
+      "acc_load": 1.046,
+      "bh_load": 1.338,
+      "users": 12.93,
+      "power": 1.204,
+      "qsr": 0.7524,
+      "goodput": 11.82
+     },
+     "3": {
+      "acc_load": 1.001,
+      "bh_load": 1.314,
+      "users": 12.48,
+      "power": 1.176,
+      "qsr": 0.754,
+      "goodput": 11.33
+     },
+     "4": {
+      "acc_load": 1.033,
+      "bh_load": 1.268,
+      "users": 12.64,
+      "power": 1.245,
+      "qsr": 0.7567,
+      "goodput": 11.31
+     }
+    },
+    "jain": {
+     "acc_load": 0.9991,
+     "bh_load": 0.997,
+     "users": 0.9992,
+     "power": 0.9963,
+     "qsr": 0.9998,
+     "goodput": 0.9988
+    }
+   },
+   "RECURSIVE_CREDIT_H128": {
+    "relay_means": {
+     "1": {
+      "acc_load": 0.966,
+      "bh_load": 1.615,
+      "users": 11.96,
+      "power": 1.638,
+      "qsr": 0.696,
+      "goodput": 10.04
+     },
+     "2": {
+      "acc_load": 1.046,
+      "bh_load": 1.437,
+      "users": 12.93,
+      "power": 1.41,
+      "qsr": 0.7312,
+      "goodput": 11.32
+     },
+     "3": {
+      "acc_load": 1.001,
+      "bh_load": 1.06,
+      "users": 12.48,
+      "power": 1.018,
+      "qsr": 0.7963,
+      "goodput": 12.22
+     },
+     "4": {
+      "acc_load": 1.033,
+      "bh_load": 1.031,
+      "users": 12.64,
+      "power": 0.933,
+      "qsr": 0.798,
+      "goodput": 12.06
+     }
+    },
+    "jain": {
+     "acc_load": 0.9991,
+     "bh_load": 0.964,
+     "users": 0.9992,
+     "power": 0.9498,
+     "qsr": 0.9967,
+     "goodput": 0.9944
+    }
+   }
+  },
+  "ep_obj_means": {
+   "HQC_SAC_MAIN": 0.7733,
+   "HQC_SAC_NO_1SWAP": 0.7478,
+   "HQC_SAC_NO_AGE": 0.4281,
+   "TD3": 0.7221,
+   "PPO": 0.6613,
+   "CDA_SAC_ADAPTED": 0.6757,
+   "RECURSIVE_CREDIT_H128": 0.69
+  }
+ },
+ "generalization": {
+  "methods": {
+   "HQC_SAC_MAIN": {
+    "c_init_1": {
+     "n": 30,
+     "QSR": 0.8354,
+     "obj": 0.8058,
+     "P95_Outage_s": 10.17,
+     "P5_SQA": 0.2367,
+     "Goodput_Mbps": 51.36
+    },
+    "c_init_2": {
+     "n": 30,
+     "QSR": 0.8326,
+     "obj": 0.8027,
+     "P95_Outage_s": 9.89,
+     "P5_SQA": 0.2316,
+     "Goodput_Mbps": 51.06
+    },
+    "c_init_3": {
+     "n": 30,
+     "QSR": 0.833,
+     "obj": 0.8029,
+     "P95_Outage_s": 10.01,
+     "P5_SQA": 0.2377,
+     "Goodput_Mbps": 51.26
+    },
+    "load_x0.8": {
+     "n": 30,
+     "QSR": 0.8538,
+     "obj": 0.8275,
+     "P95_Outage_s": 9.41,
+     "P5_SQA": 0.3057,
+     "Goodput_Mbps": 47.93
+    },
+    "load_x1.0": {
+     "n": 30,
+     "QSR": 0.8182,
+     "obj": 0.785,
+     "P95_Outage_s": 10.87,
+     "P5_SQA": 0.2317,
+     "Goodput_Mbps": 50.66
+    },
+    "load_x1.2": {
+     "n": 30,
+     "QSR": 0.8016,
+     "obj": 0.7638,
+     "P95_Outage_s": 10.89,
+     "P5_SQA": 0.1925,
+     "Goodput_Mbps": 51.52
+    },
+    "mobility_1mps": {
+     "n": 30,
+     "QSR": 0.8188,
+     "obj": 0.786,
+     "P95_Outage_s": 9.6,
+     "P5_SQA": 0.2282,
+     "Goodput_Mbps": 50.66
+    },
+    "mobility_2mps": {
+     "n": 30,
+     "QSR": 0.8184,
+     "obj": 0.7842,
+     "P95_Outage_s": 10.42,
+     "P5_SQA": 0.228,
+     "Goodput_Mbps": 50.65
+    },
+    "mobility_3mps": {
+     "n": 30,
+     "QSR": 0.818,
+     "obj": 0.7836,
+     "P95_Outage_s": 11.19,
+     "P5_SQA": 0.227,
+     "Goodput_Mbps": 50.61
+    }
+   },
+   "TD3": {
+    "c_init_1": {
+     "n": 30,
+     "QSR": 0.7808,
+     "obj": 0.7323,
+     "P95_Outage_s": 13.92,
+     "P5_SQA": 0.1649,
+     "Goodput_Mbps": 46.0
+    },
+    "c_init_2": {
+     "n": 30,
+     "QSR": 0.7867,
+     "obj": 0.7394,
+     "P95_Outage_s": 14.0,
+     "P5_SQA": 0.1686,
+     "Goodput_Mbps": 46.35
+    },
+    "c_init_3": {
+     "n": 30,
+     "QSR": 0.7543,
+     "obj": 0.6791,
+     "P95_Outage_s": 18.48,
+     "P5_SQA": 0.1352,
+     "Goodput_Mbps": 44.57
+    },
+    "load_x0.8": {
+     "n": 30,
+     "QSR": 0.8096,
+     "obj": 0.7701,
+     "P95_Outage_s": 12.96,
+     "P5_SQA": 0.2049,
+     "Goodput_Mbps": 43.47
+    },
+    "load_x1.0": {
+     "n": 30,
+     "QSR": 0.7716,
+     "obj": 0.7199,
+     "P95_Outage_s": 15.06,
+     "P5_SQA": 0.1631,
+     "Goodput_Mbps": 45.66
+    },
+    "load_x1.2": {
+     "n": 30,
+     "QSR": 0.7706,
+     "obj": 0.7187,
+     "P95_Outage_s": 14.9,
+     "P5_SQA": 0.1512,
+     "Goodput_Mbps": 48.27
+    },
+    "mobility_1mps": {
+     "n": 30,
+     "QSR": 0.7757,
+     "obj": 0.7228,
+     "P95_Outage_s": 14.5,
+     "P5_SQA": 0.1627,
+     "Goodput_Mbps": 46.01
+    },
+    "mobility_2mps": {
+     "n": 30,
+     "QSR": 0.7742,
+     "obj": 0.7203,
+     "P95_Outage_s": 15.3,
+     "P5_SQA": 0.1627,
+     "Goodput_Mbps": 45.89
+    },
+    "mobility_3mps": {
+     "n": 30,
+     "QSR": 0.773,
+     "obj": 0.7171,
+     "P95_Outage_s": 15.47,
+     "P5_SQA": 0.1626,
+     "Goodput_Mbps": 45.75
+    }
+   },
+   "CDA_SAC_ADAPTED": {
+    "c_init_1": {
+     "n": 30,
+     "QSR": 0.7438,
+     "obj": 0.647,
+     "P95_Outage_s": 19.87,
+     "P5_SQA": 0.1031,
+     "Goodput_Mbps": 42.53
+    },
+    "c_init_2": {
+     "n": 30,
+     "QSR": 0.7707,
+     "obj": 0.7101,
+     "P95_Outage_s": 17.57,
+     "P5_SQA": 0.1281,
+     "Goodput_Mbps": 44.93
+    },
+    "c_init_3": {
+     "n": 30,
+     "QSR": 0.6797,
+     "obj": 0.5204,
+     "P95_Outage_s": 26.68,
+     "P5_SQA": 0.0523,
+     "Goodput_Mbps": 37.8
+    },
+    "load_x0.8": {
+     "n": 30,
+     "QSR": 0.7708,
+     "obj": 0.7035,
+     "P95_Outage_s": 17.1,
+     "P5_SQA": 0.1633,
+     "Goodput_Mbps": 41.23
+    },
+    "load_x1.0": {
+     "n": 30,
+     "QSR": 0.7485,
+     "obj": 0.6738,
+     "P95_Outage_s": 16.66,
+     "P5_SQA": 0.1349,
+     "Goodput_Mbps": 44.6
+    },
+    "load_x1.2": {
+     "n": 30,
+     "QSR": 0.7319,
+     "obj": 0.6352,
+     "P95_Outage_s": 22.17,
+     "P5_SQA": 0.0875,
+     "Goodput_Mbps": 45.08
+    },
+    "mobility_1mps": {
+     "n": 30,
+     "QSR": 0.7508,
+     "obj": 0.6774,
+     "P95_Outage_s": 16.57,
+     "P5_SQA": 0.1289,
+     "Goodput_Mbps": 44.72
+    },
+    "mobility_2mps": {
+     "n": 30,
+     "QSR": 0.7514,
+     "obj": 0.678,
+     "P95_Outage_s": 16.5,
+     "P5_SQA": 0.1317,
+     "Goodput_Mbps": 44.75
+    },
+    "mobility_3mps": {
+     "n": 30,
+     "QSR": 0.7502,
+     "obj": 0.6752,
+     "P95_Outage_s": 17.25,
+     "P5_SQA": 0.1303,
+     "Goodput_Mbps": 44.71
+    }
+   }
+  },
+  "spread": {
+   "HQC_SAC_MAIN": {
+    "QSR_min": 0.8016,
+    "QSR_max": 0.8538,
+    "QSR_span": 0.0522,
+    "P95_max": 11.19
+   },
+   "TD3": {
+    "QSR_min": 0.7543,
+    "QSR_max": 0.8096,
+    "QSR_span": 0.0553,
+    "P95_max": 18.48
+   },
+   "CDA_SAC_ADAPTED": {
+    "QSR_min": 0.6797,
+    "QSR_max": 0.7708,
+    "QSR_span": 0.0911,
+    "P95_max": 26.68
+   }
+  }
+ },
+ "k_scan": {
+  "scope": "DEV_ONLY_K_SCAN",
+  "protocol": "MAIN, train seed 7, 400 episodes per K; eval on 30 common dev scenes (9000-9029); K=4 row is the frozen dev baseline (same scenes, seed 7)",
+  "rows": {
+   "K2": {
+    "QSR": 0.5466,
+    "obj": 0.1081,
+    "P95_Outage_s": 55.67,
+    "P5_SQA": 0.008,
+    "Goodput_Mbps": 27.79
+   },
+   "K4": {
+    "QSR": 0.8056,
+    "obj": 0.7718,
+    "P95_Outage_s": 10.63,
+    "P5_SQA": 0.2012,
+    "Goodput_Mbps": 49.5
+   },
+   "K6": {
+    "QSR": 0.7959,
+    "obj": 0.7615,
+    "P95_Outage_s": 11.48,
+    "P5_SQA": 0.2011,
+    "Goodput_Mbps": 50.1
+   }
+  }
+ }
+}

@@ -1,0 +1,20 @@
+% Table VII: Energy efficiency (E4, dev set 90 episodes)
+% Requires: \usepackage{booktabs}
+\begin{table}[t]
+\centering
+\caption{Energy decomposition and efficiency (development set, 90 episodes, episode length 200~s). Physical propulsion energy from the rotary-wing model (profile, induced, parasite, and positive climb work); best value per column in bold.}
+\label{tab:energy}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Method & Total energy (kJ) & C-UAV phys.\ (kJ) & M-UAV (kJ) & C-UAV path (m) & bits/J \\
+\midrule
+\textbf{ROCS-0 + HQC-SAC (proposed)} & 220.9 & 88.9 & 132.0 & 541 & \textbf{45{,}955} \\
+TD3 & 221.8 & 89.8 & 132.0 & 568 & 41{,}715 \\
+CDA-SAC (flat) & \textbf{220.8} & 88.9 & 132.0 & \textbf{465} & 40{,}127 \\
+PPO & 222.3 & 90.3 & 132.0 & 796 & 38{,}530 \\
+\bottomrule
+\end{tabular}
+\begin{flushleft}\footnotesize
+Total energy is nearly identical across methods because episode duration is fixed (200~s), all policies operate in the low-speed induced-power-dominated regime, and the four M-UAVs contribute the majority of fleet energy (their hover pattern is association-driven and shared across methods). Efficiency differences therefore concentrate in bits/J (goodput per joule) and C-UAV travel: the proposed method delivers 19\% more bits/J than PPO while flying 32\% less distance; CDA flies slightly less but delivers 13\% fewer bits/J.
+\end{flushleft}
+\end{table}

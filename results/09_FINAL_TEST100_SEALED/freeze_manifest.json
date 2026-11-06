@@ -1,0 +1,11 @@
+{
+  "freeze_date": "2026-11-04",
+  "decision_lambda": "Main config frozen at (0.10, 0.10): the exact parameters used by all prior comparison experiments (E1-E4, training, ablations). S040 (0.40) documented as tail-focused Pareto alternative; not the main config.",
+  "decision_joint_sac": "JOINT_SAC_PM retained in paper including diverged seed 27; excluded from sealed set per strongest-baselines scope; its paper numbers come from common-30 validation only.",
+  "sealed_methods": ["HQC_SAC_MAIN","CDA_SAC_ADAPTED","RECURSIVE_CREDIT_H128","TD3","PPO","HQC_SAC_NO_AGE","HQC_SAC_NO_1SWAP"],
+  "train_seeds": [7,17,27],
+  "sealed_seeds": [10000,10099],
+  "episodes_per_method": 300,
+  "provisional_note": "results/08_FINAL_TEST100_PROVISIONAL predates the classical-scheduler fix and remains provisional; never cited as official sealed results.",
+  "protocol": "Sealed held-out seeds 10000-10099 are consumed exactly once by this run after method freeze."
+}

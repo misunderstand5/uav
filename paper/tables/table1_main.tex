@@ -1,0 +1,23 @@
+% Table I: Sealed test-100 main comparison (official, 7 methods x 300 episodes)
+% Requires: \usepackage{booktabs}
+\begin{table*}[t]
+\centering
+\caption{Sealed final-100 evaluation: service metrics of the proposed method and six comparison methods (100 held-out scenes $\times$ 3 training seeds, 300 episodes per method). Best value per column in bold.}
+\label{tab:main}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Method & QSR & Avg.\ SQA & P5 SQA & P95 outage (s) & obj & Goodput (Mbps) \\
+\midrule
+\textbf{ROCS-0 + HQC-SAC (proposed)} & 0.8043 & \textbf{0.7353} & \textbf{0.2387} & \textbf{10.10} & \textbf{0.7733} & \textbf{50.93} \\
+w/o 1-swap & 0.8020 & 0.7122 & 0.1283 & 14.79 & 0.7478 & 49.96 \\
+w/o age term & \textbf{0.8073} & 0.7116 & 0.0326 & 66.24 & 0.4281 & 50.53 \\
+TD3 & 0.7684 & 0.6884 & 0.1676 & 13.69 & 0.7221 & 47.01 \\
+PPO & 0.7380 & 0.6502 & 0.1035 & 20.34 & 0.6613 & 43.53 \\
+CDA-SAC (flat) & 0.7434 & 0.6714 & 0.1243 & 17.93 & 0.6757 & 45.17 \\
+Recursive-credit H128 & 0.7494 & 0.6758 & 0.1540 & 17.05 & 0.6900 & 45.64 \\
+\bottomrule
+\end{tabular}
+\begin{flushleft}\footnotesize
+obj $=$ QSR $- 0.10\times$ mean under-service age, i.e., the service term of the trained per-slot reward (the complete reward also contains energy and safety terms). P95 outage is a telemetry KPI (scenario-mean of session-level P95, right-censored at episode end), not a hard constraint. Paired bootstrap (20{,}000 resamples, pairing by training seed and scene) versus the proposed method gives $\Delta$obj $=+0.345$ [0.331, 0.359] for ``w/o age term'' and $+0.025$ [0.022, 0.029] for ``w/o 1-swap''; win rate $=1.000$ in all pairwise comparisons.
+\end{flushleft}
+\end{table*}

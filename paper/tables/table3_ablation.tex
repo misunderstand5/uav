@@ -1,0 +1,27 @@
+% Table III: Ablations (scheduler: sealed set; controller: dev set)
+% Requires: \usepackage{booktabs}
+\begin{table}[t]
+\centering
+\caption{Ablation study. (a) Scheduler ablations on the sealed set (300 episodes): removing the age weight or the 1-swap improvement. (b) Controller ablations on the development set (90 episodes): motion branch or power branch only. Best value per column in bold.}
+\label{tab:ablation}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\multicolumn{5}{@{}l}{\textit{(a) Scheduler ablations (sealed set)}}\\
+\midrule
+Variant & QSR & obj & P95 outage (s) & Goodput (Mbps) \\
+\textbf{Proposed} & 0.8043 & \textbf{0.7733} & \textbf{10.10} & \textbf{50.93} \\
+w/o 1-swap & 0.8020 & 0.7478 & 14.79 & 49.96 \\
+w/o age term & \textbf{0.8073} & 0.4281 & 66.24 & 50.53 \\
+\midrule
+\multicolumn{5}{@{}l}{\textit{(b) Controller ablations (dev set)}}\\
+\midrule
+Variant & QSR & obj & P95 outage (s) & Goodput (Mbps) \\
+\textbf{Proposed (motion $+$ power)} & \textbf{0.8096} & \textbf{0.7787} & \textbf{10.19} & \textbf{50.75} \\
+Motion-only (fixed power) & 0.7126 & 0.6010 & 24.69 & 40.99 \\
+Power-only (fixed position) & 0.5142 & 0.1524 & 48.54 & 27.51 \\
+\bottomrule
+\end{tabular}
+\begin{flushleft}\footnotesize
+obj $=$ QSR $- 0.10\times$ mean under-service age. ``w/o age term'' keeps QSR nearly unchanged while its objective collapses, showing that the age penalty is the binding term of the trained reward. Motion-only and power-only fix the other branch to its trained mean behavior, isolating the credit of each control branch.
+\end{flushleft}
+\end{table}

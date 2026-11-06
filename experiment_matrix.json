@@ -1,0 +1,74 @@
+{
+  "version": "2026-11-03-paper-matrix-onepc-3workers",
+  "main_method": {
+    "id": "HQC_SAC_MAIN",
+    "status": "existing_complete_anchor_reused",
+    "seeds": [7, 17, 27],
+    "episodes_per_seed": 400,
+    "retrain": false
+  },
+  "phase_ii": {
+    "rl_baseline": {
+      "id": "CDA_SAC_ADAPTED",
+      "pilot_episodes": 11,
+      "formal_episodes_per_seed": 400,
+      "seeds": [7, 17, 27],
+      "training_intervention": "full",
+      "credit_mode": "unified_nstep",
+      "environment_contract": "same_fixed500_dynamic_user_hqc_contract"
+    },
+    "non_rl_baseline": {
+      "id": "CAUSAL_PI_BCD_SCA",
+      "rl_training": false,
+      "pilot_steps": 50,
+      "slot_duration_s": 0.5,
+      "full_common_validation_if_pilot_passes": true,
+      "runtime_p95_gate_ms": 500,
+      "solver_success_gate": 0.99,
+      "status": "project_specific_adaptation_not_verbatim_reproduction"
+    }
+  },
+  "phase_iii": [
+    {"id": "RECURSIVE_CREDIT_H128", "episodes_per_seed": 400, "seeds": [7,17,27], "training_intervention": "full", "power_credit_mode": "unified_nstep"},
+    {"id": "MOTION_ONLY", "episodes_per_seed": 400, "seeds": [7,17,27], "training_intervention": "motion_only_equal_power"},
+    {"id": "POWER_ONLY", "episodes_per_seed": 400, "seeds": [7,17,27], "training_intervention": "power_only_fixed_circle_motion"}
+  ],
+  "scheduler_ablation": {
+    "status": "frozen_policy_diagnostic_first",
+    "variants": ["age_weighted_maxcost_1swap", "rocs0_no_age", "rocs0_no_1swap"],
+    "retrain_only_after_diagnostic": true
+  },
+  "phase_iv": {
+    "lambda_screening": {
+      "episodes": 150,
+      "seed": 7,
+      "one_factor_at_a_time": true,
+      "reward_lambda_values_with_scheduler_0_10": [0.05, 0.20],
+      "scheduler_lambda_values_with_reward_0_10": [0.00, 0.20, 0.40],
+      "main_point_reused": [0.10, 0.10]
+    },
+    "generalization": {
+      "load_multipliers": [0.8, 1.0, 1.2],
+      "user_max_speed_mps": [1.0, 2.0, 3.0],
+      "c_uav_initial_positions_m": [[0,0,180],[150,0,180],[-150,0,180]],
+      "training": false
+    },
+    "relay_distribution": {"relays": 4, "source": "final_common_100_test_trajectories"}
+  },
+  "shared_protocol": {
+    "map_width_m": 500,
+    "m_uavs": 4,
+    "episode_steps": 400,
+    "dt_s": 0.5,
+    "episode_duration_s": 200,
+    "training_seeds": [7,17,27],
+    "validation_seeds": [9000,9029],
+    "final_test_seeds": [10000,10099]
+  },
+  "worker_assignment": {
+    "single_gpu_pc": "RTX 4090 24GB",
+    "workers": 3,
+    "phase_ii": "one CDA seed per worker concurrently",
+    "phase_iii": ["worker1: recursive-credit seeds sequentially", "worker2: motion-only seeds sequentially", "worker3: power-only seeds sequentially"]
+  }
+}

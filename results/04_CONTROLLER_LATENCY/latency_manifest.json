@@ -1,0 +1,10 @@
+{
+  "gpu_name": "NVIDIA GeForce RTX 4060 Ti",
+  "torch": "2.5.1+cu121",
+  "train_seed": 7,
+  "eval_seed": 9000,
+  "warmup": 100,
+  "n_gpu": 1000,
+  "n_cpu": 500,
+  "note": "batch=1 deterministic inference; GPU timing includes cuda synchronize."
+}

@@ -1,0 +1,167 @@
+[
+  {
+    "phase": "ANCHORS",
+    "method": "HQC_SAC_MAIN",
+    "seed": 7,
+    "status": "COMPLETE",
+    "episodes": 400,
+    "steps": 160000,
+    "updates": 78001,
+    "agent_sha256": "4a94ddd8cfcfcdff440a10f50f61089fbe433aef56ef90576cec70f83df85a7b",
+    "reason": ""
+  },
+  {
+    "phase": "ANCHORS",
+    "method": "HQC_SAC_MAIN",
+    "seed": 17,
+    "status": "COMPLETE",
+    "episodes": 400,
+    "steps": 160000,
+    "updates": 78001,
+    "agent_sha256": "a2e5cb85ce18e8f441fc2c1387027c5e84de79162b2b10ceee9568f3c87c9eec",
+    "reason": ""
+  },
+  {
+    "phase": "ANCHORS",
+    "method": "HQC_SAC_MAIN",
+    "seed": 27,
+    "status": "COMPLETE",
+    "episodes": 400,
+    "steps": 160000,
+    "updates": 78001,
+    "agent_sha256": "52b6bea5c0c6b40f77559a81c3c7145e1682c2d348cd9eda2e54e26028b74104",
+    "reason": ""
+  },
+  {
+    "phase": "PHASE_II",
+    "method": "CDA_SAC_ADAPTED",
+    "seed": 7,
+    "status": "COMPLETE",
+    "episodes": 400,
+    "steps": 160000,
+    "updates": 78001,
+    "agent_sha256": "e1d62dd9f2fd48dd7bf45e068ce9006915c532b2985339e5d65a612da6ab2522",
+    "reason": ""
+  },
+  {
+    "phase": "PHASE_II",
+    "method": "CDA_SAC_ADAPTED",
+    "seed": 17,
+    "status": "COMPLETE",
+    "episodes": 400,
+    "steps": 160000,
+    "updates": 78001,
+    "agent_sha256": "926e90d3f6497bdb61f629a30b717c19bd508a214868f224c5d2aa2f42a6748e",
+    "reason": ""
+  },
+  {
+    "phase": "PHASE_II",
+    "method": "CDA_SAC_ADAPTED",
+    "seed": 27,
+    "status": "COMPLETE",
+    "episodes": 400,
+    "steps": 160000,
+    "updates": 78001,
+    "agent_sha256": "93a3c71644dd3a5ea608fac98652afb9018b00bf03bec2914736e83f0cc2de75",
+    "reason": ""
+  },
+  {
+    "phase": "PHASE_III",
+    "method": "RECURSIVE_CREDIT_H128",
+    "seed": 7,
+    "status": "COMPLETE",
+    "episodes": 400,
+    "steps": 160000,
+    "updates": 78001,
+    "agent_sha256": "9a2677f398351dccde91ffcba04c12c999ddcc9f236612c257078388f56aa563",
+    "reason": ""
+  },
+  {
+    "phase": "PHASE_III",
+    "method": "RECURSIVE_CREDIT_H128",
+    "seed": 17,
+    "status": "COMPLETE",
+    "episodes": 400,
+    "steps": 160000,
+    "updates": 78001,
+    "agent_sha256": "d3ad1dbb1a45626e215089ecaa18c1b94de00676b37ccbf654493e45d058bdfb",
+    "reason": ""
+  },
+  {
+    "phase": "PHASE_III",
+    "method": "RECURSIVE_CREDIT_H128",
+    "seed": 27,
+    "status": "COMPLETE",
+    "episodes": 400,
+    "steps": 160000,
+    "updates": 78001,
+    "agent_sha256": "d5a2368bb882cf54b946d5f6fcccb5e0134a8145df3e2bf11b63192204c4e3c1",
+    "reason": ""
+  },
+  {
+    "phase": "PHASE_III",
+    "method": "MOTION_ONLY",
+    "seed": 7,
+    "status": "COMPLETE",
+    "episodes": 400,
+    "steps": 160000,
+    "updates": 78001,
+    "agent_sha256": "ca9e86512caea38191c720879fced3e9c6de43eccf9cdf4f2054637c1d51587b",
+    "reason": ""
+  },
+  {
+    "phase": "PHASE_III",
+    "method": "MOTION_ONLY",
+    "seed": 17,
+    "status": "COMPLETE",
+    "episodes": 400,
+    "steps": 160000,
+    "updates": 78001,
+    "agent_sha256": "3c595e9285eab8e7183d8c38ec6f5ae1d58d10fbebceed54f1e84c75c26fb1a8",
+    "reason": ""
+  },
+  {
+    "phase": "PHASE_III",
+    "method": "MOTION_ONLY",
+    "seed": 27,
+    "status": "COMPLETE",
+    "episodes": 400,
+    "steps": 160000,
+    "updates": 78001,
+    "agent_sha256": "ebf00452fcd192761e7cf477304792fcff4b0a45c278062797169356cfe7dae0",
+    "reason": ""
+  },
+  {
+    "phase": "PHASE_III",
+    "method": "POWER_ONLY",
+    "seed": 7,
+    "status": "COMPLETE",
+    "episodes": 400,
+    "steps": 160000,
+    "updates": 78001,
+    "agent_sha256": "07b7f7209c3ba465cf21eba099a8078ce216ebeaf563cfc5103c46e8d3c437ef",
+    "reason": ""
+  },
+  {
+    "phase": "PHASE_III",
+    "method": "POWER_ONLY",
+    "seed": 17,
+    "status": "COMPLETE",
+    "episodes": 400,
+    "steps": 160000,
+    "updates": 78001,
+    "agent_sha256": "28c025bec68726cce2e935929899fae1a493c0550c37d14c9c38c0e78c007ec8",
+    "reason": ""
+  },
+  {
+    "phase": "PHASE_III",
+    "method": "POWER_ONLY",
+    "seed": 27,
+    "status": "COMPLETE",
+    "episodes": 400,
+    "steps": 160000,
+    "updates": 78001,
+    "agent_sha256": "34e984dd7bd81054f79fbf769678b3ae11204719ada0520e707cb2b1cd731981",
+    "reason": ""
+  }
+]

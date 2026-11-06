@@ -1,0 +1,5 @@
+PHASE I (REUSE, DO NOT RETRAIN): HQC-SAC main, seeds 7/17/27, 400 EP each.
+PHASE II: CDA-SAC-Adapted (11 EP pilot, then 400 EP x 3); PI-BCD-SCA (no RL, solve/runtime/feasibility pilot).
+PHASE III: Recursive-Credit H128 400 EP x 3; Motion-only 400 EP x 3; Power-only 400 EP x 3; ROCS-0 scheduler ablation only after frozen-policy diagnosis.
+PHASE IV: lambda sensitivity 150 EP screen; load/mobility/initial-position generalization on frozen models; four-M-UAV load/service distribution from final 100 test trajectories.
+ONE PC: one CUDA GPU, three concurrent workers. RTX 4060 Ti 8GB is conditional on the 3-worker GPU smoke test; RTX 4090 24GB is preferred. Phase II: one CDA seed per worker. Phase III: one ablation per worker, each runs seeds 7/17/27 sequentially.

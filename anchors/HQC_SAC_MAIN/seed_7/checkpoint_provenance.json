@@ -1,0 +1,8 @@
+{
+  "status": "verified_checkpoint_hash_with_reconstructed_training_contract",
+  "source_checkpoint_sha256": "4a94ddd8cfcfcdff440a10f50f61089fbe433aef56ef90576cec70f83df85a7b",
+  "checkpoint_hash_verified_against": "HQC_SAC_REAL_30SEED_FINAL_20261102/joint_metadata.json",
+  "training_seed_and_400ep_reference": "HQC_SAC_JOINT_SQA_OUTAGE_REPRO_UAV_OLD_20261102/examples/400EP_three_seed_baseline_summary_reference.json",
+  "lambda_contract_reference": "HQC_SAC_UAV_OLD_3Seeds_400EP_READY_20261102/README_FIXED500.md",
+  "important_limitation": "Original per-seed run_config.json was not present in the available Library artifacts. This file is a transparent reconstructed provenance record, not an original run_config.json. The checkpoint bytes match the frozen-checkpoint 30-scenario report exactly."
+}

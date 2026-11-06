@@ -1,0 +1,29 @@
+{
+  "seed": 27,
+  "episodes": 400,
+  "device": "cuda",
+  "contract": {
+    "algorithm": "branch_credit_sac",
+    "training_intervention": "full",
+    "scheduler_mode": "age_weighted_maxcost_1swap",
+    "service_reward_mode": "age_penalized_v1",
+    "lambda_reward_per_s": 0.1,
+    "lambda_scheduler_per_s": 0.1,
+    "episode_steps": 400,
+    "dt_s": 0.5,
+    "episode_duration_s": 200.0,
+    "active_relays": 4,
+    "max_relays": 4,
+    "area_width_m": 500.0,
+    "motion_hidden_dim": 128,
+    "power_hidden_dim": 128
+  },
+  "provenance": {
+    "status": "verified_checkpoint_hash_with_reconstructed_training_contract",
+    "source_checkpoint_sha256": "52b6bea5c0c6b40f77559a81c3c7145e1682c2d348cd9eda2e54e26028b74104",
+    "checkpoint_hash_verified_against": "HQC_SAC_REAL_30SEED_FINAL_20261102/joint_metadata.json",
+    "training_seed_and_400ep_reference": "HQC_SAC_JOINT_SQA_OUTAGE_REPRO_UAV_OLD_20261102/examples/400EP_three_seed_baseline_summary_reference.json",
+    "lambda_contract_reference": "HQC_SAC_UAV_OLD_3Seeds_400EP_READY_20261102/README_FIXED500.md",
+    "important_limitation": "Original per-seed run_config.json was not present in the available Library artifacts. This file is a transparent reconstructed provenance record, not an original run_config.json. The checkpoint bytes match the frozen-checkpoint 30-scenario report exactly."
+  }
+}

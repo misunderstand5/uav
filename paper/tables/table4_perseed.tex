@@ -1,0 +1,31 @@
+% Table IV: Per-seed stability (sealed set)
+% Requires: \usepackage{booktabs}
+\begin{table}[t]
+\centering
+\caption{Per-seed results on the sealed set (100 scenes per seed). (a) Objective obj for the scheduler ablations; the proposed method wins under all three seeds. (b) P95 outage (telemetry) across training seeds for all learned methods.}
+\label{tab:perssed}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\multicolumn{4}{@{}l}{\textit{(a) Objective obj per training seed}}\\
+\midrule
+Method & Seed 7 & Seed 17 & Seed 27 \\
+\textbf{Proposed} & \textbf{0.7643} & \textbf{0.7637} & \textbf{0.7917} \\
+w/o 1-swap & 0.7139 & 0.7503 & 0.7792 \\
+w/o age term & 0.4518 & 0.3965 & 0.4361 \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{(b) P95 outage (s) per training seed}}\\
+\midrule
+Method & Seed 7 & Seed 17 & Seed 27 \\
+\textbf{Proposed} & \textbf{10.58} & \textbf{10.07} & \textbf{9.65} \\
+w/o 1-swap & 16.46 & 14.67 & 13.23 \\
+w/o age term & 66.69 & 67.64 & 64.39 \\
+TD3 & 12.26 & 16.92 & 11.89 \\
+PPO & 16.32 & 25.38 & 19.31 \\
+CDA-SAC (flat) & 17.12 & 15.88 & 20.79 \\
+Recursive-credit H128 & 20.16 & 18.52 & 12.46 \\
+\bottomrule
+\end{tabular}
+\begin{flushleft}\footnotesize
+The proposed method is the only one that keeps P95 below 12~s in every seed; TD3 (seed 17) and PPO (seed 17) exhibit marked per-seed sensitivity. Reported main-table values are the bootstrap means over all 300 episodes; this table discloses the seed-level spread (visualized in Fig.~6).
+\end{flushleft}
+\end{table}

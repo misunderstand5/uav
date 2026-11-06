@@ -1,0 +1,22 @@
+% Table VIII: Reward lambda selection (dev set 90 episodes)
+% Requires: \usepackage{booktabs}
+\begin{table}[t]
+\centering
+\caption{Effect of the age-penalty weight $\lambda_{\mathrm{age}}$ (reward) and scheduler age weight $\lambda_s$ (development set, 90 episodes). Best value per column in bold.}
+\label{tab:lambda}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Config.\ $(\lambda_{\mathrm{age}},\lambda_s)$ & QSR & Avg.\ SQA & P5 SQA & Jain & P95 outage (s) & Goodput (Mbps) \\
+\midrule
+\textbf{(0.10, 0.10) main} & \textbf{0.8096} & \textbf{0.7338} & \textbf{0.2369} & \textbf{0.8693} & 10.19 & \textbf{50.75} \\
+(0.10, 0.40) & 0.7884 & 0.7063 & 0.2228 & 0.8536 & \textbf{6.26} & 48.70 \\
+(0.05, 0.20) & 0.7966 & 0.7169 & 0.2204 & 0.8552 & 8.33 & 49.26 \\
+(0.10, 0.20) & 0.7943 & 0.7057 & 0.2089 & 0.8472 & 8.67 & 48.45 \\
+(0.20, 0.20) & 0.7865 & 0.6873 & 0.1704 & 0.8300 & 10.05 & 47.15 \\
+(0.10, 0.00) & 0.7527 & 0.6662 & 0.0352 & 0.7668 & 69.15 & 45.97 \\
+\bottomrule
+\end{tabular}
+\begin{flushleft}\footnotesize
+The main configuration (0.10, 0.10) is the frozen setting under which all prior comparison experiments in this paper were conducted. It lies on the Pareto frontier: it attains the best QSR and P5 SQA among all variants, while (0.10, 0.40) trades 2.2~pp of QSR for a shorter outage tail (6.26~s). Disabling the scheduler age weight entirely collapses the tail (69.15~s).
+\end{flushleft}
+\end{table}

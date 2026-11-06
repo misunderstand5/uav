@@ -1,0 +1,19 @@
+{
+  "method": "Causal PI-BCD-SCA adaptation (current-state one-slot P1; diagonal quadratic SCA; Motion/Power BCD)",
+  "reference_status": "adapted framework; not a verbatim reproduction of the cited uplink method",
+  "seed": 9021,
+  "steps_completed": 400,
+  "dt_s": 0.5,
+  "mean_solver_ms": 21.680910499126185,
+  "p95_solver_ms": 29.38470498775131,
+  "max_solver_ms": 40.89509998448193,
+  "mean_solver_time_fraction_of_slot": 0.04336182099825237,
+  "solver_success_rate": 1.0,
+  "no_projection_rate": 0.04,
+  "mean_qsr": 0.5227210546069213,
+  "mean_p1": -0.4128886195440609,
+  "mean_goodput_mbps": 31.780161693483624,
+  "mean_environment_reward": -0.6460241144628666,
+  "real_time_0p5s_slot_pass": true,
+  "note": "This is a solver/runtime pilot only. It is not a final 30/100-seed performance comparison."
+}

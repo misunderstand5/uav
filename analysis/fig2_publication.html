@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fig. 2 — HQC-SAC framework (HA-QCS)</title>
+<style>
+  @page { size: 7.16in 4.55in; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; width: 7.16in; height: 4.55in; background: #ffffff; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #1b1b1b; -webkit-font-smoothing: antialiased; }
+  .figure { position: relative; width: 7.16in; height: 4.55in; overflow: hidden; }
+
+  :root {
+    --env: #0f6b5c; --env-bg: #f3faf7;
+    --rl: #1f5fa8; --rl-bg: #f3f8fd;
+    --sch: #b45f06; --sch-bg: #fdf6ec;
+    --ink: #1b1b1b; --muted: #5a6570; --line: #9aa5b1;
+    --accent: #d97706;
+  }
+
+  .panel { position: absolute; border: 0.8pt solid; border-radius: 0.06in; }
+  .panel.env { left: 0.04in; top: 0.04in; width: 2.14in; height: 4.47in; background: var(--env-bg); border-color: var(--env); }
+  .panel.rl  { left: 2.24in; top: 0.04in; width: 4.88in; height: 2.17in; background: var(--rl-bg); border-color: var(--rl); }
+  .panel.sch { left: 2.24in; top: 2.27in; width: 4.88in; height: 2.24in; background: var(--sch-bg); border-color: var(--sch); }
+
+  .panel-title { position: absolute; font-size: 8.3pt; font-weight: 700; letter-spacing: 0.1pt; }
+  .env .panel-title { left: 0.09in; top: 0.07in; color: var(--env); }
+  .rl  .panel-title { right: 0.09in; top: 0.07in; color: var(--rl); }
+  .sch .panel-title { right: 0.09in; top: 2.30in; color: var(--sch); }
+
+  .card { position: absolute; background: #ffffff; border: 0.65pt solid var(--line); border-radius: 0.05in; padding: 0.045in 0.055in; }
+  .card h3 { margin: 0 0 0.025in 0; font-size: 7.0pt; font-weight: 700; line-height: 1.12; }
+  .card p, .card li { margin: 0; font-size: 6.35pt; line-height: 1.24; color: #263238; }
+  .card ul { margin: 0.01in 0 0 0.10in; padding: 0; }
+  .card li { margin: 0 0 0.012in 0; }
+  .eq { font-family: "Cambria Math", "Times New Roman", serif; font-style: italic; font-size: 6.9pt; white-space: nowrap; }
+  .small { font-size: 5.9pt; color: var(--muted); }
+  .tag { display: inline-block; font-size: 5.6pt; font-weight: 700; color: #ffffff; background: var(--rl); border-radius: 0.03in; padding: 0.006in 0.035in; margin-right: 0.03in; }
+  .tag.sch { background: var(--sch); }
+  .tag.env { background: var(--env); }
+
+  /* A1 */
+  .a1 { left: 0.10in; top: 0.29in; width: 2.02in; height: 1.30in; padding: 0.03in; }
+  .a1 h3 { margin: 0; font-size: 6.9pt; }
+  .a1 svg { position: absolute; left: 0.02in; top: 0.17in; width: 1.96in; height: 1.08in; }
+
+  /* A2 */
+  .a2 { left: 0.10in; top: 1.77in; width: 2.02in; height: 1.18in; }
+  .a2 .curve { position: absolute; left: 0.04in; top: 0.35in; width: 1.02in; height: 0.72in; }
+  .a2 .txt { position: absolute; left: 1.04in; top: 0.24in; width: 0.94in; }
+  .a2 .txt p { margin: 0 0 0.030in 0; font-size: 6.05pt; }
+
+  /* A3 */
+  .a3 { left: 0.10in; top: 3.03in; width: 2.02in; height: 1.42in; }
+  .a3 p { margin: 0 0 0.05in 0; }
+  .a3 .assoc-row { display: flex; align-items: center; gap: 0.04in; margin-top: 0.04in; height: 0.58in; }
+  .a3 .assoc-row svg { height: 0.56in; width: auto; }
+  .a3 .assoc-row .arr { font-size: 8pt; color: #0f6b5c; }
+
+  /* B */
+  .b1 { left: 2.32in; top: 0.40in; width: 1.08in; height: 1.25in; }
+  .b2a { left: 3.55in; top: 0.55in; width: 0.90in; height: 0.55in; }
+  .b2c { left: 3.55in; top: 1.20in; width: 0.90in; height: 0.45in; }
+  .b3a { left: 4.75in; top: 0.55in; width: 0.90in; height: 0.55in; }
+  .b3c { left: 4.75in; top: 1.20in; width: 0.90in; height: 0.45in; }
+  .b4  { left: 5.80in; top: 0.45in; width: 1.25in; height: 1.20in; }
+  .b1 svg { position: absolute; left: 0.04in; top: 0.38in; width: 0.98in; height: 0.78in; }
+
+  /* C */
+  .c1 { left: 2.32in; top: 2.55in; width: 1.55in; height: 1.25in; }
+  .c2 { left: 3.97in; top: 2.55in; width: 1.55in; height: 1.25in; }
+  .c3 { left: 5.62in; top: 2.55in; width: 1.40in; height: 1.25in; }
+  .c1 p, .c2 p, .c3 p { margin: 0 0 0.035in 0; }
+  .cfoot { position: absolute; left: 2.36in; top: 3.90in; width: 4.62in; font-size: 5.7pt; color: var(--muted); }
+  .flowlegend { position: absolute; left: 2.32in; top: 1.84in; width: 4.62in; font-size: 5.8pt; color: var(--muted); }
+
+  .flowlabel { position: absolute; font-size: 5.9pt; font-weight: 700; color: #ffffff; background: #263238; border-radius: 0.10in; width: 0.13in; height: 0.13in; text-align: center; line-height: 0.13in; }
+  .flowtext { position: absolute; font-size: 5.8pt; color: var(--muted); }
+
+  svg.arrows { position: absolute; left: 0; top: 0; width: 7.16in; height: 4.55in; z-index: 20; pointer-events: none; }
+
+  /* cards are nested in positioned panels: coordinates below are panel-relative */
+  .env .a1 { left: 0.06in; top: 0.25in; }
+  .env .a2 { left: 0.06in; top: 1.73in; }
+  .env .a3 { left: 0.06in; top: 2.99in; }
+  .rl .b1 { left: 0.08in; top: 0.36in; }
+  .rl .b2a { left: 1.31in; top: 0.51in; }
+  .rl .b2c { left: 1.31in; top: 1.16in; }
+  .rl .b3a { left: 2.51in; top: 0.51in; }
+  .rl .b3c { left: 2.51in; top: 1.16in; }
+  .rl .b4  { left: 3.56in; top: 0.41in; }
+  .sch .c1 { left: 0.08in; top: 0.28in; }
+  .sch .c2 { left: 1.73in; top: 0.28in; }
+  .sch .c3 { left: 3.38in; top: 0.28in; }
+  .sch .cfoot { left: 0.12in; top: 1.75in; }
+  .sch .panel-title { top: 0.03in; }
+</style>
+</head>
+<body>
+<div class="figure">
+
+  <!-- ================= PANEL A ================= -->
+  <div class="panel env">
+    <div class="panel-title">A. Environment</div>
+
+    <div class="card a1">
+      <h3>A1  Network model</h3>
+      <svg viewBox="0 0 196 108" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <symbol id="uav" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="3.6" fill="#1b1b1b"/>
+            <line x1="20" y1="20" x2="8" y2="8" stroke="#1b1b1b" stroke-width="1.6"/>
+            <line x1="20" y1="20" x2="32" y2="8" stroke="#1b1b1b" stroke-width="1.6"/>
+            <line x1="20" y1="20" x2="8" y2="32" stroke="#1b1b1b" stroke-width="1.6"/>
+            <line x1="20" y1="20" x2="32" y2="32" stroke="#1b1b1b" stroke-width="1.6"/>
+            <circle cx="8" cy="8" r="4.2" fill="#fff" stroke="#1b1b1b" stroke-width="1.3"/>
+            <circle cx="32" cy="8" r="4.2" fill="#fff" stroke="#1b1b1b" stroke-width="1.3"/>
+            <circle cx="8" cy="32" r="4.2" fill="#fff" stroke="#1b1b1b" stroke-width="1.3"/>
+            <circle cx="32" cy="32" r="4.2" fill="#fff" stroke="#1b1b1b" stroke-width="1.3"/>
+          </symbol>
+          <symbol id="user" viewBox="0 0 20 30">
+            <circle cx="10" cy="6" r="4.2" fill="#fff" stroke="#1b1b1b" stroke-width="1.4"/>
+            <line x1="10" y1="10" x2="10" y2="21" stroke="#1b1b1b" stroke-width="1.5"/>
+            <line x1="3" y1="15" x2="17" y2="15" stroke="#1b1b1b" stroke-width="1.5"/>
+            <line x1="10" y1="21" x2="5" y2="28" stroke="#1b1b1b" stroke-width="1.5"/>
+            <line x1="10" y1="21" x2="15" y2="28" stroke="#1b1b1b" stroke-width="1.5"/>
+          </symbol>
+        </defs>
+        <!-- NOMA backhaul links -->
+        <g stroke="#0f6b5c" stroke-width="1.0" stroke-dasharray="3 2" opacity="0.75">
+          <line x1="98" y1="30" x2="30" y2="62"/>
+          <line x1="98" y1="30" x2="72" y2="62"/>
+          <line x1="98" y1="30" x2="126" y2="62"/>
+          <line x1="98" y1="30" x2="168" y2="62"/>
+        </g>
+        <!-- access links -->
+        <g stroke="#7a8b8a" stroke-width="0.8" opacity="0.8">
+          <line x1="30" y1="70" x2="42" y2="92"/>
+          <line x1="72" y1="70" x2="98" y2="92"/>
+          <line x1="126" y1="70" x2="98" y2="92"/>
+          <line x1="168" y1="70" x2="154" y2="92"/>
+        </g>
+        <use href="#uav" x="80" y="12" width="36" height="36"/>
+        <use href="#uav" x="15" y="52" width="30" height="30"/>
+        <use href="#uav" x="57" y="52" width="30" height="30"/>
+        <use href="#uav" x="111" y="52" width="30" height="30"/>
+        <use href="#uav" x="153" y="52" width="30" height="30"/>
+        <g>
+          <use href="#user" x="34" y="88" width="11" height="17"/>
+          <use href="#user" x="45" y="88" width="11" height="17"/>
+          <use href="#user" x="56" y="88" width="11" height="17"/>
+          <use href="#user" x="90" y="88" width="11" height="17"/>
+          <use href="#user" x="101" y="88" width="11" height="17"/>
+          <use href="#user" x="112" y="88" width="11" height="17"/>
+          <use href="#user" x="146" y="88" width="11" height="17"/>
+          <use href="#user" x="157" y="88" width="11" height="17"/>
+          <use href="#user" x="168" y="88" width="11" height="17"/>
+        </g>
+        <text x="98" y="10" font-family="Arial" font-size="6.2" fill="#1b1b1b" text-anchor="middle">C-UAV</text>
+        <text x="30" y="49" font-family="Arial" font-size="5.4" fill="#5a6570" text-anchor="middle">M-UAV ×4</text>
+        <text x="98" y="84" font-family="Arial" font-size="5.4" fill="#5a6570" text-anchor="middle">GU clusters</text>
+        <text x="4" y="14" font-family="Arial" font-size="5.1" fill="#5a6570">NOMA BH: 20 MHz, 5 W</text>
+        <text x="4" y="22" font-family="Arial" font-size="5.1" fill="#5a6570">Access: 5 MHz, 1 W</text>
+      </svg>
+    </div>
+
+    <div class="card a2">
+      <h3>A2  Dynamic sessions</h3>
+      <svg class="curve" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2,58 L18,58 L30,50 L42,28 L58,12 L70,20 L84,40 L96,58" fill="none" stroke="#0f6b5c" stroke-width="1.6"/>
+        <path d="M2,58 L18,58 L30,50 L42,28 L58,12 L70,20 L84,40 L96,58 L96,66 L2,66 Z" fill="#0f6b5c" opacity="0.08"/>
+        <line x1="2" y1="66" x2="96" y2="66" stroke="#9aa5b1" stroke-width="0.8"/>
+        <text x="9" y="64" font-family="Arial" font-size="4.5" fill="#5a6570">start</text>
+        <text x="38" y="64" font-family="Arial" font-size="4.5" fill="#5a6570">surge</text>
+        <text x="65" y="64" font-family="Arial" font-size="4.5" fill="#5a6570">slow</text>
+        <text x="84" y="64" font-family="Arial" font-size="4.5" fill="#5a6570">depart</text>
+      </svg>
+      <div class="txt">
+        <p><b>20 → 130</b> active GUs</p>
+        <p><b>QoS</b> 0.7 / 2 / 2.5</p>
+        <p class="small">Mbit/s per class</p>
+        <p>session 45–120 s<br><span class="small">random arrivals / departures</span></p>
+      </div>
+    </div>
+
+    <div class="card a3">
+      <h3>A3  Association</h3>
+      <p>Rate-weighted K-means++ <span class="eq">→</span> cluster centers</p>
+      <p>Hungarian matching <span class="eq">→</span> <span class="eq">x<sub>i,k</sub>, U<sub>k</sub></span></p>
+      <div class="assoc-row">
+        <svg viewBox="0 0 118 58" xmlns="http://www.w3.org/2000/svg">
+          <g fill="none" stroke="#0f6b5c" stroke-width="0.9">
+            <circle cx="13" cy="15" r="8" opacity="0.55"/>
+            <circle cx="13" cy="43" r="8" opacity="0.35"/>
+            <circle cx="44" cy="29" r="8" opacity="0.55"/>
+            <line x1="21" y1="17" x2="36" y2="26"/>
+            <line x1="21" y1="41" x2="36" y2="32"/>
+          </g>
+          <g fill="#0f6b5c"><circle cx="13" cy="15" r="2.0"/><circle cx="13" cy="43" r="2.0"/><circle cx="44" cy="29" r="2.0"/></g>
+          
+        </svg>
+        <span class="arr">→</span>
+        <svg viewBox="0 0 86 58" xmlns="http://www.w3.org/2000/svg">
+          <g transform="translate(2,6)">
+            <use href="#uav" x="0" y="0" width="22" height="22"/>
+            <use href="#uav" x="26" y="0" width="22" height="22"/>
+            <use href="#uav" x="0" y="26" width="22" height="22"/>
+            <use href="#uav" x="26" y="26" width="22" height="22"/>
+          </g>
+          
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PANEL B ================= -->
+  <div class="panel rl">
+    <div class="panel-title">B. Branch-Credit Controller</div>
+
+    <div class="card b1">
+      <h3>B1  Relay-set encoder</h3>
+      <p><span class="eq">o<sub>k,n</sub></span> ∈ ℝ<sup>14</sup>, <span class="eq">k=1..K</span></p>
+      <svg viewBox="0 0 98 78" xmlns="http://www.w3.org/2000/svg">
+        <g fill="#dbe8f5" stroke="#1f5fa8" stroke-width="0.6">
+          <rect x="2" y="8" width="10" height="8" rx="1"/>
+          <rect x="2" y="22" width="10" height="8" rx="1"/>
+          <rect x="2" y="36" width="10" height="8" rx="1"/>
+          <rect x="2" y="50" width="10" height="8" rx="1"/>
+        </g>
+        <text x="17" y="14" font-family="Arial" font-size="4.8" fill="#5a6570">relay tokens</text>
+        <text x="17" y="21" font-family="Arial" font-size="4.8" fill="#5a6570">K ≤ 6</text>
+        <line x1="14" y1="26" x2="30" y2="26" stroke="#1f5fa8" stroke-width="0.7"/>
+        <rect x="30" y="10" width="30" height="38" rx="3" fill="#e8f0fa" stroke="#1f5fa8" stroke-width="0.7"/>
+        <text x="45" y="26" font-family="Arial" font-size="5.3" fill="#1b1b1b" text-anchor="middle">shared</text>
+        <text x="45" y="33" font-family="Arial" font-size="5.3" fill="#1b1b1b" text-anchor="middle">encoder</text>
+        <text x="45" y="40" font-family="Arial" font-size="5.3" fill="#1b1b1b" text-anchor="middle">+ mask</text>
+        <line x1="60" y1="29" x2="74" y2="29" stroke="#1f5fa8" stroke-width="0.7"/>
+        <text x="76" y="24" font-family="Arial" font-size="4.8" fill="#5a6570">masked</text>
+        <text x="76" y="31" font-family="Arial" font-size="4.8" fill="#5a6570">pooling</text>
+        <text x="76" y="38" font-family="Arial" font-size="4.8" fill="#5a6570">→ s</text>
+      </svg>
+    </div>
+
+    <div class="card b2a">
+      <h3>B2  Motion actor</h3>
+      <p><span class="eq">π<sub>M</sub>(a<sub>M</sub> | s)</span></p>
+      <p class="small">stochastic, 3-D</p>
+    </div>
+    <div class="card b2c">
+      <h3>B2  Twin critics</h3>
+      <p><span class="eq">Q<sub>M</sub><sup>φ1</sup>, Q<sub>M</sub><sup>φ2</sup></span></p>
+      <p class="small">recursive soft target</p>
+    </div>
+
+    <div class="card b3a">
+      <h3>B3  Power actor</h3>
+      <p><span class="eq">π<sub>P</sub>(s)</span></p>
+      <p class="small">deterministic, K-D</p>
+    </div>
+    <div class="card b3c">
+      <h3>B3  Same-slot utility</h3>
+      <p><span class="eq">u<sub>P</sub>(s, a<sub>P</sub>)</span></p>
+      <p class="small">no target critic</p>
+    </div>
+
+    <div class="card b4">
+      <h3>B4  Projection &amp; training</h3>
+      <p>flight limits, power softmax</p>
+      <p><span class="eq">a<sub>M</sub>=(v, θ, φ),  a<sub>P</sub>→p<sub>k</sub><sup>B</sup></span></p>
+      <p class="small">replays <span class="eq">D<sub>M</sub>, D<sub>P</sub></span>; SAC losses</p>
+    </div>
+  </div>
+
+  <!-- ================= PANEL C ================= -->
+  <div class="panel sch">
+    <div class="panel-title">C. HA-QCS Scheduler</div>
+
+    <div class="card c1">
+      <h3><span class="tag sch">1</span>Eligibility &amp; guard</h3>
+      <p><span class="eq">F<sub>k</sub> = { i : C<sub>i</sub><sup>A</sup> ≥ R<sub>i</sub><sup>min</sup> }</span></p>
+      <p><span class="eq">a<sub>i</sub><sup>req</sup> = R<sub>i</sub><sup>min</sup>/C<sub>i</sub><sup>A</sup> ≤ 1</span></p>
+      <p>rescue overdue <span class="eq">O<sub>i</sub> ≥ T<sub>guard</sub></span></p>
+      <p class="small">≤ 1 rescue per relay / slot</p>
+    </div>
+
+    <div class="card c2">
+      <h3><span class="tag sch">2</span>Cost-ordered completion</h3>
+      <p><span class="eq">ℓ<sub>i</sub> = R<sub>i</sub><sup>min</sup>/C<sub>i</sub><sup>A</sup> + R<sub>i</sub><sup>min</sup>/R<sub>k</sub><sup>B</sup></span></p>
+      <p>complete in ascending <span class="eq">ℓ<sub>i</sub></span></p>
+      <p class="small">if access + backhaul fit</p>
+    </div>
+
+    <div class="card c3">
+      <h3><span class="tag sch">3</span>Residual filling</h3>
+      <p>history-weighted PF:</p>
+      <p><span class="eq">w<sub>i</sub> ∝ 1 + O<sub>i</sub>/5 + (1−S<sub>i</sub>)/10</span></p>
+      <p class="small">leftover access / backhaul</p>
+    </div>
+
+    <div class="cfoot">
+      per relay <span class="eq">k</span>, every slot: <span class="eq">Σ<sub>i</sub> a<sub>i</sub><sup>req</sup> ≤ 1</span>, <span class="eq">Σ<sub>i</sub> R<sub>i</sub><sup>min</sup> ≤ R<sub>k</sub><sup>B</sup></span>; output delivered rates <span class="eq">D<sub>i</sub></span> and completion <span class="eq">C<sub>n</sub></span>.
+    </div>
+  </div>
+
+  <!-- ================= ARROWS ================= -->
+  <svg class="arrows" viewBox="0 0 716 455" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="m-env" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#0f6b5c"/>
+      </marker>
+      <marker id="m-rl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#1f5fa8"/>
+      </marker>
+      <marker id="m-sch" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#b45f06"/>
+      </marker>
+    </defs>
+
+    <!-- 1: s_n -->
+    <path d="M212,75 L228,75" fill="none" stroke="#0f6b5c" stroke-width="1.5" marker-end="url(#m-env)"/>
+    <circle cx="221" cy="68" r="7.5" fill="#263238"/>
+    <text x="221" y="70.6" font-family="Arial" font-size="6.4" fill="#fff" text-anchor="middle" font-weight="700">1</text>
+
+    <!-- 2: actions -->
+    <path d="M228,168 L212,168" fill="none" stroke="#0f6b5c" stroke-width="1.5" marker-end="url(#m-env)"/>
+    <circle cx="221" cy="161" r="7.5" fill="#263238"/>
+    <text x="221" y="163.6" font-family="Arial" font-size="6.4" fill="#fff" text-anchor="middle" font-weight="700">2</text>
+
+    <!-- 3: capacities -->
+    <path d="M212,215 L220,215 L220,260 L230,260" fill="none" stroke="#b45f06" stroke-width="1.4" marker-end="url(#m-sch)"/>
+    <circle cx="220" cy="238" r="7.5" fill="#263238"/>
+    <text x="220" y="240.6" font-family="Arial" font-size="6.4" fill="#fff" text-anchor="middle" font-weight="700">3</text>
+
+    <!-- 4: delivered service -->
+    <path d="M310,390 L310,420 L212,420 L212,400" fill="none" stroke="#b45f06" stroke-width="1.3" marker-end="url(#m-sch)"/>
+    <circle cx="260" cy="420" r="7.5" fill="#263238"/>
+    <text x="260" y="422.6" font-family="Arial" font-size="6.4" fill="#fff" text-anchor="middle" font-weight="700">4</text>
+
+    <!-- 5: QoS feedback -->
+    <path d="M212,330 L218,330 L218,221 L230,221" fill="none" stroke="#1f5fa8" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#m-rl)"/>
+    <circle cx="218" cy="275" r="7.5" fill="#263238"/>
+    <text x="218" y="277.6" font-family="Arial" font-size="6.4" fill="#fff" text-anchor="middle" font-weight="700">5</text>
+  </svg>
+
+  <!-- flow legend -->
+  <div class="flowlegend">
+    Flow: ① state <span class="eq">s<sub>n</sub></span> &nbsp; ② actions <span class="eq">a<sub>M</sub>, a<sub>P</sub></span> &nbsp;
+    ③ capacities <span class="eq">C<sub>A</sub>, R<sub>B</sub></span> &nbsp; ④ delivered <span class="eq">D<sub>i</sub>, C<sub>n</sub></span> &nbsp;
+    ⑤ QoS histories <span class="eq">S<sub>i</sub>, O<sub>i</sub></span>
+  </div>
+
+</div>
+</body>
+</html>
+

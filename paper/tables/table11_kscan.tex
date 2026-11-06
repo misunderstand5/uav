@@ -1,0 +1,23 @@
+% Table XI: Fleet-size extensibility (dev-only K scan)
+% Protocol: MAIN trained from scratch at K=2 and K=6 (seed 7, 400 episodes, frozen
+% mainline config with only the relay count overridden); evaluated on the same 30
+% common dev scenes (seeds 9000-9029) as the K=4 dev baseline (seed 7). Dev data,
+% not the sealed set.
+% Requires: \usepackage{booktabs}
+\begin{table}[t]
+\centering
+\caption{Fleet-size extensibility of the proposed method. $K$ relays, 30 common dev scenes (evaluation seeds 9000--9029); the K=4 row is the frozen dev baseline (training seed 7). obj $=$ QSR $-$ 0.1 $\times$ mean under-service age.}
+\label{tab:kscan}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+$K$ & QSR & obj & P95 (s) & $P_5$ SQA & Goodput (Mbps) \\
+\midrule
+2 & 0.5466 & 0.1081 & 55.67 & 0.0080 & 27.79 \\
+4 & \textbf{0.8056} & \textbf{0.7718} & \textbf{10.63} & \textbf{0.2012} & 49.50 \\
+6 & 0.7959 & 0.7615 & 11.48 & 0.2011 & 50.10 \\
+\bottomrule
+\end{tabular}
+\begin{flushleft}\footnotesize
+With only $K=2$ relays the fleet is under-provisioned and service collapses (QSR 0.547, P95 55.7~s). Adding two more relays beyond the nominal $K=4$ yields no further gain ($-1.0$~pp QSR, $+0.9$~s P95, $+0.6$~Mbps goodput), i.e., the ROCS-0 plus branch-credit controller extracts essentially all achievable service with the nominal four-relay fleet, which motivates the fixed $K=4$ design. All rows are dev-set evaluations (30 scenes, training seed 7); the sealed set (Table~I) was never touched.
+\end{flushleft}
+\end{table}

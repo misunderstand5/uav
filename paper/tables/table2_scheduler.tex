@@ -1,0 +1,21 @@
+% Table II: Scheduler comparison (dev set, frozen main controller)
+% Requires: \usepackage{booktabs}
+\begin{table}[t]
+\centering
+\caption{Scheduler comparison under the frozen proposed controller (development set, 90 episodes). Only the per-relay scheduler is substituted; motion and power control are identical across rows. Best value per column in bold.}
+\label{tab:sched}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Scheduler & QSR & P5 SQA & P95 outage (s) & Goodput (Mbps) \\
+\midrule
+\textbf{ROCS-0 (proposed)} & \textbf{0.8096} & \textbf{0.2369} & \textbf{10.19} & \textbf{50.75} \\
+Equal-share & 0.3548 & 0.0000 & 129.04 & 31.85 \\
+Max-CQI & 0.3970 & 0.0001 & 119.89 & 34.95 \\
+Proportional-fair & 0.3985 & 0.0015 & 124.64 & 34.34 \\
+Max-QoS & 0.2776 & 0.0025 & 138.92 & 30.37 \\
+\bottomrule
+\end{tabular}
+\begin{flushleft}\footnotesize
+Classical schedulers allocate each relay's access resource by proportional filling with the indicated weights and no completion machinery. Equal-share yields P5 SQA $=0.000$ because a proportional split always leaves at least one session with a near-zero share; this is a property of the policy, not an artifact.
+\end{flushleft}
+\end{table}

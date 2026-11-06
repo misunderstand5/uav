@@ -1,0 +1,17 @@
+ONE-PC / THREE GPU WORKERS
+
+1) conda activate uav_old
+2) cd /d "<extracted package folder>"
+3) RUN_ONEPC_PREFLIGHT.bat
+4) after [PREFLIGHT PASSED], RUN_ALL_PHASE_II_III.bat
+
+After training:
+- RUN_AUDIT_PROGRESS_NOW.bat
+- RUN_PLOT_CONVERGENCE.bat
+- RUN_COMMON30_EVALUATION.bat
+- RUN_SCHEDULER_ABLATION_DIAGNOSTIC.bat
+- RUN_PHASE_IV_GENERALIZATION.bat
+- RUN_RELAY_DISTRIBUTION_AGGREGATE.bat
+- RUN_FINALIZE_DATA_PACKAGE.bat
+
+Do not run the final 100 test seeds until the model/configuration/code are frozen.

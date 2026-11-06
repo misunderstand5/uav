@@ -1,0 +1,26 @@
+[
+  {
+    "seed": 7,
+    "episodes": 400,
+    "steps": 160000,
+    "agent_sha256": "4a94ddd8cfcfcdff440a10f50f61089fbe433aef56ef90576cec70f83df85a7b",
+    "checkpoint_load": "PASS",
+    "metadata": "reconstructed_provenance"
+  },
+  {
+    "seed": 17,
+    "episodes": 400,
+    "steps": 160000,
+    "agent_sha256": "a2e5cb85ce18e8f441fc2c1387027c5e84de79162b2b10ceee9568f3c87c9eec",
+    "checkpoint_load": "PASS",
+    "metadata": "reconstructed_provenance"
+  },
+  {
+    "seed": 27,
+    "episodes": 400,
+    "steps": 160000,
+    "agent_sha256": "52b6bea5c0c6b40f77559a81c3c7145e1682c2d348cd9eda2e54e26028b74104",
+    "checkpoint_load": "PASS",
+    "metadata": "reconstructed_provenance"
+  }
+]

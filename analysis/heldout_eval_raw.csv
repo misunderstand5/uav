@@ -1,0 +1,4 @@
+﻿method,seed,training_seed,episodes
+LS020(0.10/0.20),seed_17,17,30
+LS020(0.10/0.20),seed_27,27,30
+LS020(0.10/0.20),seed_7,7,30

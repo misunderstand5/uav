@@ -1,0 +1,14 @@
+{
+  "python": "3.11.5 | packaged by Anaconda, Inc. | (main, Sep 11 2023, 13:26:23) [MSC v.1916 64 bit (AMD64)]",
+  "torch": "2.5.1+cu121",
+  "torch_cuda": "12.1",
+  "numpy": "1.26.4",
+  "device": "cuda",
+  "cuda_available": true,
+  "gpu_name": "NVIDIA GeForce RTX 4060 Ti",
+  "cudnn_version": 90100,
+  "deterministic_algorithms": true,
+  "cudnn_benchmark": false,
+  "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+  "PYTHONHASHSEED": null
+}

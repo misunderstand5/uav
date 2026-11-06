@@ -1,0 +1,1413 @@
+IEEE TRANSACTIONS ON SERVICES COMPUTING, VOL. 19, NO. 1, JANUARY/FEBRUARY 2026 167
+Asynchronous Task Scheduling and Resource
+Allocation for UA V -Enabled Mobile Edge
+Computing Networks
+Xiuling Zhang , Riheng Jia , Member , IEEE, Quanjun Yin , Zhonglong Zheng , Member , IEEE,
+and Minglu Li , Fellow, IEEE
+Abstract—Mobile edge computing (MEC) is promising in han-
+dling delay-sensitive or resource-intensive tasks in mobile internet.
+Existing system schedulers in MEC networks usually schedule all
+service providers in a synchronous manner, which may not suit
+the practical scenario where tasks are randomly generated and
+require different computational resources and service times. In
+this work, we jointly optimize the task scheduling and resource
+allocation in an unmanned aerial vehicle (UA V)-enabled MEC
+network, where multiple UA Vs asynchronously and cooperatively
+deliver task ofﬂoading and computing services to edge devices
+(EDs), for maximizing the average per-UA V energy utility and
+minimizing the overall task missing ratio. To enhance schedul-
+ing efﬁciency and jointly optimize task scheduling and resource
+allocation, we develop an asynchronous layered multi-agent proxi-
+mal policy optimization (AL-MAPPO) algorithm, by incorporating
+the multi-UA V asynchronous action execution mechanism and a
+discrete-continuous layered action space into the general MAPPO
+framework. AL-MAPPO enables each UA V to perform ﬂexible task
+scheduling and ﬁne-grained resource allocation asynchronously.
+Extensive trace-driven simulations based on Alibaba Cluster Data
+V2017 validate the effectiveness of AL-MAPPO, compared with
+several baseline algorithms.
+Index Terms —Mobile edge computing, asynchronous system
+operation, multi-agent reinforcement learning, task scheduling,
+resource allocation.
+I. I NTRODUCTION
+A. Background and Motivation
+R
+ECENTLY , mobile edge computing (MEC) [1] emerges
+as a promising technology to directly provide computing
+services at the network edge, which may satisfy the requirements
+of various edge applications for low latency and high computing
+power. In many MEC deployments, edge servers are placed at
+local wireless access points or cellular towers, where delay-
+sensitive or computation-intensive tasks can be ofﬂoaded and
+Received 22 December 2024; revised 23 November 2025; accepted 15 Decem-
+ber 2025. Date of publication 18 December 2025; date of current version 5 Febru-
+ary 2026. This work was supported by the National Natural Science Foundation
+of China under Grant 62272417, Grant 62272419, and Grant 62320106006.
+(Corresponding author: Riheng Jia.)
+Xiuling Zhang and Quanjun Yin are with the State Key Laboratory of
+Digital Intelligent Modeling and Simulation, College of Systems Engineering,
+National University of Defense Technology, Changsha 410073, China (e-mail:
+xiuling@nudt.edu.cn; yin_quanjun@163.com).
+Riheng Jia, Zhonglong Zheng, and Minglu Li are with the School of Computer
+Science and Technology, Zhejiang Normal University, Jinhua 321004, China
+(e-mail: rihengjia@zjnu.edu.cn; zhonglong@zjnu.edu.cn; mlli@zjnu.edu.cn).
+Digital Object Identiﬁer 10.1109/TSC.2025.3645776
+executed efﬁciently [2], [3], [4], [5], [6], [7], [8], [9], [10].H o w -
+ever, these ﬁxed-edge deployments may struggle with spatial-
+temporal dynamics in task loads, and the growing cost of deploy-
+ing more edge servers remains a challenge. As a solution, UA V -
+enabled MEC has been integrated into traditional MEC systems
+to enhance their ﬂexibility and applicability in dynamic scenar-
+ios [11], [12], [13], [14], [15], [16], [17]. Moreover, the need for
+efﬁcient computational support in collaborative edge computing
+scenarios, such as the collaboration between large and small
+language models [18], where small models on edge devices
+(EDs) rely on cloud-based large models for high-level knowl-
+edge processing, motivates the use of UA Vs to provide dedicated
+computational resources that meet the privacy, computation, and
+latency demands of real-time, resource-constrained tasks.
+UA Vs equipped with edge servers can provide EDs with
+ﬂexible and effective task ofﬂoading and computing services
+by fully utilising their three-dimensional (3D) mobility, line-
+of-sight connections, and easy deployment, especially when
+infrastructure-based MEC servers are overloaded or unavail-
+able in hot-spot regions or disaster areas. In realistic deploy-
+ments, however, computational tasks with heterogeneous, multi-
+dimensional resource demands arrive randomly over time, and
+multiple UA Vs operate in a decentralized manner without prior
+knowledge of edge-device states. These factors induce strong
+temporal dynamics and partial observability. Together with the
+inherent tight coupling between task scheduling and resource
+allocation, they turn each decision into a context-dependent
+trade-off that directly shapes subsequent service opportunities.
+Consequently, we face the challenge of jointly optimizing task
+scheduling and resource allocation online in a decentralized,
+time-varying environment.
+B. A Brief Introduction of Our Work and Challenges
+In this work, we jointly optimize the task scheduling and
+resource allocation in a UA V -enabled mobile edge computing
+network (MECN), where multiple UA Vs asynchronously deliver
+task ofﬂoading and computing services to a number of EDs. We
+aim to maximize the average per-UA V energy utility and mini-
+mize the overall task missing ratio within a ﬁnite time horizon
+T .F i g .1 shows the network model and a brief introduction is
+illustrated as follows (Please refer to SectionII for more details).
+EDs are randomly distributed within the network and each of
+them may randomly generate a request for task ofﬂoading at
+each slot. In the rest of this work, we use “request” to denote
+“request for task ofﬂoading” for short. There is a base station
+used to collect requests from EDs and broadcast them to all UA Vs
+1939-1374 © 2025 IEEE. All rights reserved, including rights for text and data mining, and training of artiﬁcial intelligence and similar technologi es.
+Personal use is permitted, but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index. html for more information.
+Authorized licensed use limited to: Zhejiang Normal University. Downloaded on February 12,2026 at 04:44:20 UTC from IEEE Xplore.  Restrictions apply. 
+168 IEEE TRANSACTIONS ON SERVICES COMPUTING, VOL. 19, NO. 1, JANUARY/FEBRUARY 2026
+Fig. 1. Network model.
+within the network. Each UA V maintains a pending request
+queue and decides whether to serve one of the pending requests
+by comprehensively considering its own status and the request
+information at each slot. Once the UA V determines to serve a
+certain request, it moves from its current location to the ED
+that generates the served request and collects the corresponding
+ofﬂoading task. In the rest of this work, we use “task” to denote
+“ofﬂoading task” for short. The UA V can immediately start
+computing the task once it ﬁnishes collecting the task. Note
+that each task has a deadline before which the task computation
+must be ﬁnished. Otherwise, the task fails and we deﬁne such
+a task as a missed task. For each task, minimizing the time
+from request generation to completion is crucial and strongly
+affected by each UA V’s policy. Speciﬁcally, selecting requests
+from distant EDs incurs the long travel times and raises the
+risk of deadline violations, while over-allocating computational
+resources may accelerate the current task but leave insufﬁcient
+capacity for subsequent tasks. Therefore, each UA V must jointly
+optimize task scheduling 1 and resource allocation to balance
+proximity, deadline slack, and future capacity. We summarize
+the main challenges of problem-solving as follows.
+The exact ED-side information is inaccessible to UA Vs: In
+this work, the exact ED-side information, e.g., when will an
+ED generate a certain request and what type of computing
+resource will the corresponding task need, is inaccessible to
+UA Vs, since requests are usually randomly generated across
+the EDs in practical scenarios, which show unpredictability and
+dynamics. It is difﬁcult for UA Vs to make appropriate decisions
+of task scheduling and resource allocation without knowing the
+exact ED-side information.
+The trade-off between energy utility and task missing ratio:
+To reduce the number of missed tasks, UA Vs need to prioritize
+the tasks with early deadlines. However, it may take a long time
+for the UA V to move to a far-away ED to collect the task with an
+early deadline, which decreases the UA V’s energy utility since
+much energy is spent on movement rather than computation.
+With limited onboard energy for both the movement and com-
+putation, the lower energy utility usually indicates the fewer
+tasks completed within a ﬁxed horizon.
+Multiple UA Vs operate asynchronously and cooperatively
+within the network: Both task collection and computation times
+vary. The collection time depends on the UA V –ED distance and
+ofﬂoading delay, while the computation time depends on the
+allocated computational resources. This yields asynchronous
+operation of available UA Vs per slot, requiring effective per-
+UA V task scheduling and resource allocation policies to balance
+task demand and resource supply. In addition, since multiple
+1We deﬁne task scheduling as a UA V selecting its next request and traveling
+to the corresponding ED to collect the ofﬂoading task for computation.
+UA Vs need to cooperatively provide services to the MECN, the
+correlation between each UA V’s decision further complicates
+the algorithm design.
+To handle those challenges, we introduce the multi-agent
+reinforcement learning (MARL) framework and asynchronous
+action execution mechanism, which enable each UA V to learn to
+jointly optimize its task scheduling and resource allocation, by
+interacting asynchronously with the environment and tracking
+received request information as well as its own status in real time.
+Speciﬁcally, we develop a decentralized partially observable
+Markov decision process (Dec-POMDP) to model the MECN
+environment, where multiple UA Vs cooperatively optimize their
+decisions to maximize the total rewards by only accessing their
+local observations. According to the developed Dec-POMDP ,
+we propose an asynchronous layered multi-agent proximal pol-
+icy optimization (AL-MAPPO) algorithm based on the general
+MAPPO framework [19], leveraging the centralized training
+and decentralized execution (CTDE) framework. We summarize
+main contributions as follows.r This paper makes an effort to design an asynchronous
+MARL-based solver with a layered action space to jointly
+optimize online task scheduling and resource allocation in
+a decentralized and dynamic UA V –MEC system without
+requiring exact ED-side information. Each UA V is mod-
+elled as an agent and its interaction with the MECN is
+formulated as a Dec-POMDP , and a CTDE-based MARL
+framework is used to achieve cooperative, asynchronous
+scheduling of multiple UA Vs in this environment.r We develop the AL-MAPPO algorithm by designing a
+discrete-continuous layered action space and an asyn-
+chronous action execution mechanism within the gen-
+eral MAPPO framework, which enables each UA V to
+perform the ﬂexible task scheduling and ﬁne-grained re-
+source allocation asynchronously. By leveraging the CTDE
+learning paradigm, each UA V learns to jointly optimize
+its task scheduling and resource allocation by interact-
+ing with the MEC environment based on only its own
+observation.r Extensive evaluations are conducted to validate the ef-
+fectiveness and superiority of the proposed AL-MAPPO
+algorithm. Results show that our algorithm can effectively
+maximize each UA V’s energy utility on average and mini-
+mize the overall task missing ratio within the MECN, com-
+pared with several baseline algorithms. Additionally, load
+balancing among UA Vs is evaluated to further demonstrate
+the performance of our algorithm.
+The remainder of the paper is organized as follows: Section II
+reviews related work; Section III describes the system model;
+Section IV formulates the problem; Section V details the AL-
+MAPPO architecture and implementation; Section VI reports
+the evaluation; Section VII concludes.
+II. R ELA TEDWORK
+In this section, we compare our work with existing literature
+in terms of system models, optimization goals and methods
+to highlight the novelty of our work. Table I summarizes key
+differences between our work and the main relevant literature.
+A. Non-Machine Learning Based Optimization in MECNs
+We next review the literature on modeling and optimization
+in MECNs when full system information is available.
+Authorized licensed use limited to: Zhejiang Normal University. Downloaded on February 12,2026 at 04:44:20 UTC from IEEE Xplore.  Restrictions apply. 
+ZHANG et al.: ASYNCHRONOUS TASK SCHEDULING AND RESOURCE ALLOCA TION FOR UA V -ENABLED MOBILE EDGE COMPUTING NETWORKS 169
+TABLE I
+KEY DIFFERENCES BETWEEN OUR WORK AND MAIN RELEV ANTLITERA TURE
+The scheduling optimization within dynamic MECNs:In most
+practical MEC-enabled monitoring systems, the task genera-
+tion time varies across monitoring devices that are deployed at
+different locations. Studies [2], [22], [23] considered dynamic
+task arrivals, where each user generates only one task and the
+task generation time varies across users during the entire time
+horizon of the system. For example, Guo et al. [22] investi-
+gated a synchronous computation ofﬂoading paradigm, where
+all users make ofﬂoading decisions simultaneously. Under the
+same assumption of one-shot task generation, Y ou et al. [24]
+proposed an energy-efﬁcient strategy of data partitioning for
+asynchronous MEC systems. For dynamically generated tasks
+with uncertain resource demands, studies[27] and [28] proposed
+effective mapping schemes between requestors and servers to
+ensure responsive and cost-effective resource provisioning, by
+employing a futures (forward-contract)–style framework for
+resource trading and provisioning. Furthermore, Guo et al. [29]
+proposed a top-level graph-based task scheduling scheme to ob-
+tain feasible assignments between task components and nearby
+dynamic vehicles in a timely manner, while minimizing task
+completion time and data exchange overhead.
+The scheduling optimization within UA V-enabled MECNs:
+UA Vs or V ehicular Clouds equipped with edge servers can
+provide edge services more ﬂexibly, which however face the
+challenge of limited on-board energy and computational re-
+sources [11], [12], [13], [14], [15], [16], [17]. Speciﬁcally,
+Zhang et al.[11] minimized the UA V’s total energy consumption
+by jointly optimizing the task allocation, power allocation and
+ﬂight trajectory in a MECN. Zhang et al. [13] maximized the
+computation efﬁciency of a multi-UA V enabled MECN and
+jointly optimize the user association, resource allocation, and
+path planning of UA Vs. Li et al. [14] aimed to maximize the
+UA V’s energy efﬁciency by jointly optimizing the UA V’s path
+planning, users’ transmitting power, and allocation of compu-
+tation load. Zhu et al. [15] and Qian et al. [16] maximized the
+UA V’s energy efﬁciency by jointly optimizing several decision
+variables, subject to the UA V’s energy constraint and each user’s
+QoS. Guo et al. [17] aimed to minimize the processing latency
+of divisible tasks by jointly optimizing task scheduling and al-
+location of computing resource in a multi-UA V enabled MECN,
+under several task and energy constraints. To optimize overall
+energy efﬁciency, Zhang et al.[21] considered joint optimization
+algorithms for sub-channel allocation, transmit power control,
+and multi-UA V trajectory planning in a multi-cell heterogeneous
+UA V –sidelink network under quality of service (QoS) sensitivity
+restrictions. Y an et al. [30] proposed a UA V -enabled network
+to provide mobile coverage for mobile group users, and jointly
+optimized user scheduling, resource allocation, and UA V trajec-
+tories to maximize the minimum average user throughput under
+QoS, communication, and trajectory constraints. Methodologi-
+cally, both the above two studies employed successive convex
+approximation (SCA) to iteratively address the nonconvex joint
+optimization problems.
+B. Machine Learning Based Optimization in MECNs
+Recent works have demonstrated the effectiveness of machine
+learning techniques in online decision-making for dynamic
+MECNs. For example, Jamil et al. [31] proposed a model-free
+deep reinforcement learning (DRL)-based resource allocation
+algorithm for vehicular fog networks, which can minimize the
+data latency by ﬂexibly scheduling idle resources of vehicles.
+Peng et al. [32] aimed to design a generic and efﬁcient scheduler
+for maximizing the utilization of expensive deep learning clus-
+ters. Zhao et al. [33] adopted multiple schedulers in a large-scale
+network and proposed a MARL-based scheduling algorithm to
+reduce the job completion time, by facilitating the ﬁne-grained
+task placement. Zhao et al. [34] proposed a cooperative MARL
+framework to jointly design the trajectory, task allocation, and
+communication resource management of each dispatched UA V ,
+for minimizing the execution latency and energy cost. Liao
+et al. [35] proposed a fog computing based resource balancing
+scheme to ensure the efﬁcient use of computational resources.
+Li et al. [20] proposed a distributed scheduler for multiple
+edge clusters with heterogeneous computation resources, aiming
+to reduce the total completion time of continuously arriving
+machine learning tasks. Qin et al.[25] proposed an asynchronous
+computation ofﬂoading scheme to enhance energy efﬁciency
+in MEC systems, where mobile devices have consecutive task
+a r r i v a l s .T u l ie ta l .[26] proposed a RL-based real-time scheduler
+for dynamic edge-cloud environments, using a synchronous
+system operation model and heterogeneous resources setting.
+Compared with prior MECN studies including the afore-
+mentioned, the novelty of this work is illustrated as follows:
+1) We consider a practical MECN where the service provided
+for each task is asynchronously executed, which differs from the
+traditional synchronous system operation model; 2) We consider
+a ﬁne-grained allocation of resources, rather than allocating the
+requested amounts of resources to each task, for better utilizing
+the limited on-board resources of each dispatched UA V; 3) We
+consider a spatial-temporal dynamic of request arrivals, which
+is not known to UA Vs in advance.
+Authorized licensed use limited to: Zhejiang Normal University. Downloaded on February 12,2026 at 04:44:20 UTC from IEEE Xplore.  Restrictions apply. 
+170 IEEE TRANSACTIONS ON SERVICES COMPUTING, VOL. 19, NO. 1, JANUARY/FEBRUARY 2026
+TABLE II
+ILLUSTRA TION OF MAIN SYSTEM PARAMETERS
+III. S YSTEM MODEL
+We consider a UA V -enabled MECN that consists of M ter-
+restrial EDs and N rotary-wing UA Vs carrying MEC servers,
+where EDs may ofﬂoad their tasks to UA Vs for processing. Key
+notations are summarized in Table II. In general, the system
+operates as follows: 1) There is a BS located in the network
+which continuously collects requests from EDs, for example,
+via multi-hop transmission. Speciﬁcally, in each time slot, the
+EDs that have generated tasks upload their task requests to
+the BS over a Time Division Multiple Access (TDMA)-based
+uplink [36], [37]. After collecting all requests within the current
+slot, the BS aggregates them into a single control-plane packet
+and broadcasts this packet to all UA Vs over a common downlink
+control channel; 2) Upon receiving and decoding the aggregated
+packet, each UA V updates its local view of outstanding requests
+and, according to its own strategy, decides whether to serve a
+request and which one to select, based on the request information
+and its available computing resources and energy; 3) Once the
+UA V determines to serve a certain request, it moves close to
+the ED that sends the request, collects the corresponding task,
+and allocates the appropriate computing resource; 4) Each UA V
+repeats Steps 2-3 until all UA Vs drain out their batteries or the
+pre-deﬁned maximum system operation time is reached.
+A. Task Scheduling Model
+Task generation and request arrivals: To model the random
+task generation process, we assume that the generation of a task
+at each ED follows the Poisson distribution with parameter λ.
+The corresponding requests sent by EDs continuously arrive at
+the BS, where each request can only be scheduled to one of
+the dispatched UA Vs if possible. Each request contains some
+information including the serial number j, location Ljm ∈M
+where the corresponding task is generated, required resource
+typer ∈R (e.g., CPU or GPU) with minimum required brj ,t h e
+total computation demand of taskj with type-r resourcescrj ,t a s k
+generation time tj , and task deadline tj +φj before which the
+task computation must be ﬁnished. Therefore, a task request is
+formally deﬁned asΦj = ⟨Ljm,tj,brj,crj,tj +φj⟩. At the begin-
+ning of any slott, there are some tasks being randomly generated
+at certain EDs. At the same time, the corresponding requests are
+sent to the BS via a TDMA uplink, and the BS aggregates the
+requests within each slot into a single control message that is
+broadcasted to all UA Vs for decoding and scheduling. Each UA V
+n maintains a local request queue Qtn = {Φ1,Φ2,..., Φj} for
+all the received but not yet scheduled requests at the beginning
+of slot t.
+Request selection: Initially, all UA Vs are deployed at some
+ﬁxed locations within the network and the battery of each UA V
+is fully charged to its capacity Ec. Each UA V independently
+decides which request Φj ∈Q tn to serve at the beginning of
+each slott. In particular, a binary decision variablestn is utilized
+to represent whether UA Vn is idle (stn =1 )o rb u s y(stn =0 )
+at slot t.A ta n ys l o tt,i fU A Vn is on its way to a certain ED
+for task ofﬂoading or there is not any available resource for task
+computation, then we havestn =0 .O t h e r w i s e ,w eh a v estn =1 .
+Only idle UA Vs can choose to serve the request while busy
+UA Vs have to wait until the next slot. For any idle UA Vn, it ﬁrst
+sorts all the requests in its local request queue by the distance
+from the current location of UA V n to the location where each
+queued request is generated (i.e., ||Ltn −Ljm||, ∀Φj ∈Q tn)i n
+ascending order. Here, we denote Ltn as the location of UA Vn
+at the beginning of slot t. Within the sorted request queue, if
+multiple requests share the same calculated distance, we sort
+those requests again by the remaining time until their task
+deadlines in ascending order, which indicates that the task with
+early deadline is prioritized. After sorting, UA V n selects one
+of the ﬁrst Nreq requests in its sorted request queue according
+to its own task scheduling policy, i.e., |Qtn| = Nreq. A binary
+decision variable ztj,n is utilized to represent whether request
+Φj is selected (ztj,n =1 ) or not selected (ztj,n =0 )b yU A Vn at
+slott.
+Task ofﬂoading: Once a UA V decides to serve a certain
+request, it moves towards the requesting ED and enables task
+ofﬂoading. Speciﬁcally, assuming the UA V travels at a constant
+ﬂight speedv, the travel time from the UA V’s ground projection
+Ln to the ED’s location Lm isΔtj,move = ||Ln −Lm||/v.D u r -
+ing the subsequent transmission phase, the UA V hovers directly
+above the ED, hence the ground-to-air link distance is the con-
+stant ﬂight altitude H, and the channel is assumed quasi-static
+(i.e., constant) within each time slot. Although a line-of-sight
+(LoS) component typically dominates due to the UA Vs’ high
+operating altitude, scattered multipath also arises from ground
+objects and inter-UA V reﬂections. Therefore, we model the
+uplink channel as a practical Rician fading channel with an
+additional environment-dependent large-scale loss. Speciﬁcally,
+the instantaneous power gain from ED m to UA Vn is deﬁned
+as in [38]
+gn,m =
+[
+˜β
+Hι gRiciann,m
+=
+[
+˜β
+Hι
+]√ κ
+κ+1 gLoSn,m +
+√
+1
+κ+1 gRayleighn,m
+)
+, (1)
+Authorized licensed use limited to: Zhejiang Normal University. Downloaded on February 12,2026 at 04:44:20 UTC from IEEE Xplore.  Restrictions apply. 
+ZHANG et al.: ASYNCHRONOUS TASK SCHEDULING AND RESOURCE ALLOCA TION FOR UA V -ENABLED MOBILE EDGE COMPUTING NETWORKS 171
+where ˜β denotes the channel power gain at the reference distance
+Href =1 m, incorporating the environment-dependent large-
+scale effects at 90◦ elevation, ι is the path loss exponent of
+the ground-to-air link, gRiciann,m is the normalized Rician fading
+channel,κ is the Rician factor specifying the power ratio between
+LoS and Rayleigh fading components, gLoSn,m with |gLoSn,m| =1
+is the normalized LoS component, and gRayleighn,m ∼ CN(0,1) is
+the normalized Rayleigh fading component. Therefore, under
+additive white Gaussian noise (AWGN), the achievable uplink
+rate in slot t is
+Rtn,m = Blog2
+(
+1+ P0gtn,m
+BN0
+)
+, (2)
+where B denotes the system bandwidth (Hz), P0 is the ED’s
+transmit power (W), and N0 is the noise power spectral density.
+The ofﬂoading delay for task j is determined by its data size
+(bits), i.e., Δtj,off = Dj/Rn,m.
+B. Resource Allocation Model
+Resource allocation:We assume that each UA V can provideR
+types of computational resources. Each type of resource r ∈R
+has a different smallest unit δr that can be allocated, and the
+total amount of δr available in UA Vn ∈N is denoted as the
+resource capacity Crn. Thus, for any type-r resource in UA Vn,
+its full set of possible values that can be selected to provision for
+a task is represented as {brj,(brj+δr),(brj+2δr),...,C rn,∀r ∈
+R,n ∈N} . Since the allocated computational resources may be
+occupied for multiple slots, the real-time maximum assignable
+type-r resource at UA Vn, which is denoted asBtr,n, may change
+over slots.
+Once the task associated with request j has been fully of-
+ﬂoaded to UA Vn, the UA V allocates the speciﬁed computational
+resources to execute the task in accordance with its allocation
+policy. We denote the amount of type- r resource allocated to
+task j at slot t as xr,tj,n, which is an integer decision variable.
+Since tasks may start computation at various times and oc-
+cupy computational resources for different durations, we have∑
+j∈Dtn xr,tj,n ≤ Crn, for any r,n, and t.W ea l s oh a v exr,tj,n ≥ brj ,which indicates that the allocated amount of type- r resource
+must be no less than the minimum required amount of type- r
+resource. Once the resource allocation for task j is decided,
+the computation delay for task j is determined by its allo-
+cated resources, i.e., Δj,comp = crj/xr,tj,n, where xr,tj,n indicates
+the processing rate allocated to task j by UA Vn in slot t (e.g.,
+cycles/s). UA Vn calculates the total energy consumption used
+for movement and computation regarding task j as
+Etj,n = ztj,n (dtj,n ·pmove +crj ·pcom), (3)
+where dtj,n is the horizontal (ground-projected) distance from
+the current position of UA Vn at time slott to the ED generating
+request j, pmove is the energy cost for the UA V’s movement per
+unit distance, and pcom is the energy cost for task computation
+per slot by using unit resource (e.g., running one CPU for one
+slot). If the residual energy of UA V n at slot t is no smaller
+than the calculated energy consumption, i.e., Etres,n ≥ Etj,n,
+and also the amount of available type- r resource at slot t is no
+less than the allocated amount of type-r resource for computing
+task j, i.e., Btr,n ≥ xr,tj,n, then task j is ﬁnally scheduled to
+UAV n, which is then ready to move and ﬁnish computing
+the task. Otherwise, UA V n will abandon task j and request
+j remains to be selected by idle UA Vs in upcoming slots until
+its task deadline. Speciﬁcally, a binary decision variable ytj,n
+is utilized to represent whether task j is scheduled ( ytj,n =1 )
+or not scheduled ( ytj,n =0 )t oU A V n at slot t. To guarantee
+that each task j is scheduled to at most one UA V , we have∑
+n∈N ytj,n ≤ 1, for any t and j. We assume that ytj,n is only
+positive when taskj is scheduled to UA Vn and remains zero in
+any other slots, indicating that task j will be executed by UA V
+n until the corresponding computation is completed.
+After UA V n selects requestj, it moves to the associated ED
+and subsequently provides ofﬂoading for taskj, while UA Vn+
+1 ∈ (1,N tidle] starts the request selection just in the way UA V n
+does. The only difference is that requestj will not join the sorting
+process conducted by UA V n+1 , since request j is deleted
+fromQtn+1 once it is selected by UA Vn. If a selected request is
+not scheduled ultimately (i.e., violating the energy or resource
+constraints), it cannot be scheduled again by any other UA Vs
+within the same slot, which means the probability of missing
+the corresponding task is increased as the task’s remaining time
+until deadline is reduced by one slot. Note that a task is deemed
+successful only if the end-to-end latency from its generation at
+the ED to completion at the UA V does not exceed its deadline,
+i.e.,
+tj +Δtj,move +Δtj,off +Δtj,comp +Δtj,wait ≤ tj +φj, (4)
+where Δwait denotes the total waiting time of request j in both
+the request selection queue and the resource allocation queue),
+otherwise, it is considered missed.
+C. Asynchronous System Operation Model
+A global clock and each UA V’s local clock are deﬁned as
+follows. We deﬁne the time unit of the global clock as a slot
+with constant length. We deﬁne the time unit of each UA V’s local
+clock as a time step. The length of each time step is variable,
+since the time durations for executing various actions (e.g., the
+UA V’s movement time, subsequent task ofﬂoading delay, or task
+computation time) are different. For any UA Vn, we denote Tkn
+as the k-th time step with respect to the local clock of UA V
+n. All UA Vs share the same global clock and each UA V also
+has its own local clock for asynchronously executing actions.
+During any time step Tkn ,U A Vn can ﬁnish executing an action,
+e.g., moving from its current location to the ED generating
+the task scheduled for UA V n and enabling task ofﬂoading, or
+staying at its current location until the next time step when there
+are sufﬁcient computational resources that can be released for
+serving new requests. In particular, the set of tasks that are being
+executed concurrently on UA Vn during slott is denoted asDtn.
+We should note that Dtn may change over slots, since different
+tasks may be executed asynchronously on each UA V , i.e., the
+start time and the end time for each task’s computation on the
+UA V may be different.
+IV . PROBLEM FORMULA TION
+We deﬁne a missed task as one that fails to complete computa-
+tion before its deadline, i.e., it violating the deadline constraint
+in (4). We also deﬁne the energy utility as the ratio between
+the energy used for task computation and the energy used for
+both task computation and the UA V’s movement. We aim to
+maximize the average per-UA V energy utility and minimize the
+overall task missing ratio within a ﬁnite timeT , while satisfying
+each UA V’s resource and energy constraints. The optimization
+Authorized licensed use limited to: Zhejiang Normal University. Downloaded on February 12,2026 at 04:44:20 UTC from IEEE Xplore.  Restrictions apply. 
+172 IEEE TRANSACTIONS ON SERVICES COMPUTING, VOL. 19, NO. 1, JANUARY/FEBRUARY 2026
+problem is formulated as follows.
+max 1N ∑n∈N
+∑
+t∈T
+∑
+j∈J ytj,ncrjpcom∑
+t∈T
+∑
+j∈J ytj,n(crjpcom+dtj,npmove)
+−α Nmiss
+Nmiss+Nhit
+, (5)
+subject to
+∑
+t∈T
+∑
+j∈J
+ytj,n (crjpcom +dtj,npmove) ≤ Ec,∀n,r, (6)
+∑
+j∈J
+ytj,n ≤ 1,∀n,t, ∑
+n∈N
+ytj,n ≤ 1,∀j,t, (7)
+brj ≤ xr,tj,n ≤ Crn,∀n,j,r,t, (8)
+∑
+j∈Dtn
+xr,tj,n ≤ Crn,∀r,n,t, (9)
+where T = {1,2,...,T } denotes the set of all slots, Nmiss is
+the total number of missed tasks, Nhit is the total number of
+tasks which complete computation before their deadlines, α is
+a joint weight used for normalization and trade-off between
+energy utility and task missing ratio. Constraint (6) indicates
+that the total energy consumption of each UA V duringT cannot
+exceed its energy capacity. Constraint (7) indicates that at any
+slott, each request can be scheduled to only one UA V and each
+UA V can schedule only one request if possible. Constraint (8)
+indicates the range of each type of resource that can be allocated
+to provision for a task in a UA V . Constraint(9) indicates that each
+type of resource occupied by concurrent tasks being computed
+can not exceed its capacity in a UA V .
+V. P ROPOSED METHOD
+In the following, we ﬁrst construct the Dec-POMDP , and
+then introduce the asynchronous and layered action execution.
+Finally, we present AL-MAPPO algorithm.
+A. Dec-POMDP F ormulation
+We deﬁne the Dec-POMDP as a tuple G =
+⟨N,S,O,A,P,R,γ ⟩, where N represents the set of N
+UA Vs, andS denotes the global state space. The observation
+space and action space are respectively represented by
+O = {O1,..., ON} and A = {A1,..., AN}. In particular,
+On represents the observation space of UA V n, and An
+represents the action space of UA V n. We denote P and R
+as the state transition probability space and reward space,
+respectively. We denote γ as the discounted factor used to
+balance the instant reward and long-term cumulative reward.
+Observation: The local observation of UA V n at slot t is
+deﬁned as otn ∈O n, which includes the UA V’s own status
+information and the information of requests in Qtn. The sta-
+tus information of UA V n is denoted as the tuple otn,u =
+⟨Ttn,idle,Ltn,Etres,n,Btr,n⟩. Here, Ttn,idle represents the remain-
+ing time until when UA Vn becomes idle at slot t. Speciﬁcally,
+Ttn,idle =0 if stn =1 , indicating that UA V n is idle at slot
+t. Otherwise, we calculate Ttn,idle in two cases: 1) Ttn,idle =
+‖Ltn−Ljm‖
+vn +
+Drj
+Rn,m , indicating the time needed for UA V n to
+travel to EDm for collecting task j;2 )Ttn,idle =m i nj∈Dtn cr,tj,remxr,tj,n ,
+where cr,tj,rem represents the remaining computation of task j at
+slot t, thus Ttn,idle is the waiting time until the earliest resource
+release. For each requestΦj ∈Q tn, we represent its information
+by the tuple otn,j = ⟨||Ltn −Ljm||,brj,crj,φj −(t−tj)⟩, which
+respectively give the UA V -ED distance, the minimum required
+resource of type r, the total required computation, and the
+remaining time-to-deadline of task j. Thus, the observation
+otn = {otn,u,∪j∈Qtnotn,j}.State: The global state of UA V n at slot t is deﬁned as
+stn = {∪n∈Notn}, which consists of the concatenated local ob-
+servations from all UA Vs. In particular, within stn, the exact
+location Ltn′ in each UA V n′’s own status information otn′,u,
+where n′ ∈N and n′ ⁄= n, is replaced with the spatial relation
+in terms of the distance and angle between UA Vsn andn′. When
+a UA V depletes its battery, we replace its observation with an
+all −1 vector that matches the dimensionality of active obser-
+vations, thereby preserving dimensional consistency. Moreover,
+the format of each UA V’s local observationotn within the global
+statestn is identical across agents, which enhances the scalability
+of the proposed algorithm.
+Action: We develop a two-layer discrete and continuous action
+mechanism, i.e., at any slott, each UA Vn ﬁrst chooses a discrete
+action atn ∈A nd = {a1,a 2,...,a Nreq,a wait} based on otn, indi-
+cating that UA Vn chooses one of the ﬁrst Nreq requests from its
+sorted request queue or a waiting action. Then, based on otn and
+atn,U A Vn chooses a continuous value xtn ∈X na =[ brj,Btr,n],
+indicating that UA V n decides the resource allocation for the
+chosen requestatn. Thus, at any slott, each UA Vn executes two
+actions for request selection and resource allocation respectively,
+which can be represented by an action tuple Atn = ⟨atn,xtn⟩,
+where a causal relationship between atn and xtn is established.
+Each action a in the ﬁrst-layer discrete action space And is
+associated with a second-layer continuous action space Xna ,
+which consists of a set of real-valued and continuous parameters.
+Thus, the action space of each UA V n is denoted as the union
+of each discrete action with all possible continuous actions, i.e.,
+An = ∪a∈And {(a,x) | x ∈X na }. If the number of requests K inthe UA V’s request queue is less than Nreq, i.e., K<N req, then
+the remaining Nreq −K actions are assumed to be invalid and
+there will be no corresponding resource allocation actions.
+Reward: To accommodate the objective in (5), we deﬁne the
+reward obtained by UA Vn after time step Tkn as
+rkn = E[Tkn]com
+E[Tkn ]com +E[Tkn ]move −α N[Tkn]missN [Tkn ]miss +N [Tkn ]rcv , (10)
+whereE[Tkn ]com andE[Tkn ]move represent the total amount of energy used
+for computation and movement of UA Vn respectively during its
+time step [Tkn]. We denoteN [Tkn ]miss andN [Tkn ]rcv as the total number
+of missed tasks and newly generated tasks within the network
+respectively during [Tkn]. We denote α as the a joint weight
+coefﬁcient in the reward function. In particular, we have
+E[Tkn]com = ∑
+t∈[Tkn ]
+∑
+j∈Dtn
+xr,tj,npcom, (11)
+E[Tkn]move = ∑
+j∈J
+yt′j,npmove‖Lt′n −Ljm‖vn , (12)
+wheret′ denotes the ﬁrst slot of Tkn .
+Authorized licensed use limited to: Zhejiang Normal University. Downloaded on February 12,2026 at 04:44:20 UTC from IEEE Xplore.  Restrictions apply. 
+ZHANG et al.: ASYNCHRONOUS TASK SCHEDULING AND RESOURCE ALLOCA TION FOR UA V -ENABLED MOBILE EDGE COMPUTING NETWORKS 173
+Fig. 2. Asynchronous action execution.
+State transition: At any slott, we denoteNidle ⊆N as the set
+of idle UA Vs which need to make decisions of request selection
+and resource allocation. Based on st ∈S and Nidle, we obtain
+the observation vector of Nidle at slot t through function Ω:
+S×N idle →O Nidle . Each UA Vn ∈N idle selects an actionAtn =
+⟨atn,xtn⟩ based on otn. The joint action execution of all UA Vs in
+Nidle results in a transition to st+1 ∈S through state transition
+functionP : S×A Nidle →S .
+B. Asynchronous Action Execution and Trajectory Collection
+In Fig. 2, we show an example of two UA Vs executing their
+actions asynchronously. At the beginning of the ﬁrst slot (t =1 ),
+both UA Vs 1 and 2 are idle. Based on their own local observa-
+tionso11 ando12, the UA Vs independently choose action decisions
+(A11 and A12). For example, each UA V selects one request and
+moves towards the ED that generated the request to perform task
+ofﬂoading. In particular, UA V 1 requires two slots to complete
+its movement and ofﬂoading, whereas UA V 2 requires only one
+slot. Thus, actions A11 and A12 start at the same time instant but
+end at different time instants.
+To accommodate the asynchronous action execution model,
+we adopt the trajectory collection method proposed in [39],
+where the system asynchronously collects each UA V’s inter-
+active data based on its local time step. The data collected
+at each time step is then concatenated into a chronological
+data sequence, which is called the trajectory. We denote τkn
+as the interactive data of UA V n in its k-th time step, where
+τkn =( stn,otn,Atn,rkn,dt+[Tkn ]n ) and the last term inτkn is a binary
+decision variable used to represent whether the training episode
+is terminated. At the beginning of any slot t, for each idle UA V
+n, we collect stn, otn and Atn, and add them to τkn by assuming
+that UA Vn is going to start itsk-th local time step[Tkn]. Then, as
+the system enters the next slot, we check if UA V n has ﬁnished
+its local time step [Tkn]. If so, we calculate the reward rkn as
+well as the indicatordt+[Tkn ]n and add them toτkn . After all UA Vs
+complete their training episodes, all the collected trajectories are
+uploaded and training parameters are updated accordingly. For
+example, in Fig. 2, the collected trajectories of UA Vs 1 and 2
+can be represented as follows.
+[(
+s11,o 11,A 11,r 11,d [T 11 ]1 ),..., (st1,ot1,At1,rk1,dt+[Tk1 ]1 ),... ],
+[(
+s12,o 12,A 12,r 12,d [T 12 ]2 ),..., (st2,ot2,At2,rk2,dt+[Tk2 ]2 ),... ].
+C. Discrete-Continuous Layered Policy Networks
+Due to the hierarchical structure of the designed action space,
+the discrete action policy πθd and the continuous action policy
+πθc may suffer from the causal dependence during their training.
+Fig. 3. Algorithm framework.
+To address this challenge, we introduce two mutually indepen-
+dent policy networks to trainπθd andπθc separately. The discrete
+action is randomly sampled from a distribution generated by
+the softmax function, based on the output of the discrete policy
+network. In particular, we use the action masking technique[19]
+to prevent agents choosing unavailable actions, which thus can
+accelerate the training speed. Speciﬁcally, we replace the weight
+of each invalid action in both the forward pass and backward pass
+with a sufﬁcient large negative number as shown below.
+πθd(a|o)= softmax(mask(l(o))),
+mask(l(o))n =
+(
+Ln, ifan is valid in o;
+−∞, otherwise, (13)
+where the logits l(·) are output directly by the discrete policy
+network given local observation o, and mask(·) is a constant
+function for elements in the logits. Next, we use the Beta
+distribution as the stochastic policy for the continuous policy
+network as shown in (14), which is bias-free and may provide
+fast convergence and high performance [40].
+πθc(x|o,a)= Beta(μ,ν),
+μ,ν = softplus(l(o,a))+1 , (14)
+where μ and ν are modeled by neural networks with parameter
+θc and softplus. In addition, a constant of 1 is added to the output
+to ensure μ,ν ≥ 1.
+D. Design and Implementation of AL-MAPPO
+Architecture: The proposed AL-MAPPO algorithm is devel-
+oped based on the MAPPO framework by incorporating two
+policy networks and one critic network. It utilizes a centralized
+critic to process the global states of UA Vs to guide policy
+training for each UA V . During the decentralized action execution
+phase, each UA V selects the action according to its own local
+observation and executes the chosen action asynchronously. The
+algorithm framework is shown in Fig. 3, where three neural
+networks are deployed with the same network architecture.
+Speciﬁcally, the share critic network is exploited to evaluate
+the value of each global state, and the share policy networks
+consisting of discrete and continuous policy networks are used
+to output the action tuple of each UA V . All UA Vs share the
+same policy networks πθd(·|o) and πθc(·|o,a). Also, all UA Vs
+share the same critic network Vϕ(s). Note that there is only one
+Authorized licensed use limited to: Zhejiang Normal University. Downloaded on February 12,2026 at 04:44:20 UTC from IEEE Xplore.  Restrictions apply. 
+174 IEEE TRANSACTIONS ON SERVICES COMPUTING, VOL. 19, NO. 1, JANUARY/FEBRUARY 2026
+Algorithm 1: AL-MAPPO.
+set of actor-critic networks used for training all UA Vs, i.e., the
+actor-critic networks sequentially evaluate the state and output
+the action for each UA V . Each of the three deployed neural
+networks consists of two multi-layer perceptrons (MLP) and
+one-layer gate recurrent unit (GRU). The GRU cell is employed
+to effectively capture and represent the dynamic features of all
+UA Vs in the current state. The hidden states in the GRU are not
+only input into the second MLP but also forwarded throughout
+an episode, which thus improves the scalability without adding
+more parameters. Compared with other RNNs such as LSTM,
+GRU is more suitable for the model training in this work since it
+boasts fewer parameters, has higher training speed, and requires
+less data for training.
+Work ﬂow:Algorithm 1 is operated as follows. The parameters
+of the three neural networks and replay bufferC are ﬁrstly initial-
+ized. At the beginning of each training episode, we initialize N
+trajectory lists to store the interactive data for each UA V . We also
+initialize the hidden states of the GRU neuron for each UA V with
+zero vectors in three neural networks. At any slot, we go through
+all idle UA Vs to gather their global states, local observations,
+and action mask vectors in turn. Each UA V’s local observation
+is ﬁrst input into the discrete policy network for outputting a
+request index. Then the output request index together with the
+local observation is input into the continuous policy network
+for outputting the ﬁnal action tuple. Similarly, the global state
+of each idle UA V is fed into the critic network to obtain the
+corresponding state value. When all those idle UA Vs execute
+their actions, the system enters the next slot. At the beginning
+of the next slot, we ﬁrst check whether each UA V ﬁnishes its
+current local time step. If so, we need to calculate the reward
+obtained from each UA V’s just ended local time step as well as
+the value of the binary decision variable indicating whether the
+training episode is terminated. Note that, each training episode
+ends if all UA Vs drain out their batteries or the number of slots
+exceedsT . At the end of each episode, we store all the collected
+trajectories in C and then update network parameters.
+Policy update: RL-based agents iteratively evaluate and op-
+timize policies by exploring different states and actions. The
+training process focuses on identifying two optimal policies,
+parameterized by θd and θc, which jointly determine the opti-
+mal task scheduling and resource allocation for each UA V to
+maximize the expected cumulative reward deﬁned as
+θ∗d,θ∗c = argmax
+θd,θc
+Eo∼ρ,⟨a,x⟩∼⟨πθd,πθc⟩
+) T∑
+t=1
+γt−1rt
+(
+) /b√ace[t]pdown√]g[t/b√ace[t]pdownleft /b√ace[t]pup√]g[t
+J(πθd,πθc )
+. (15)
+The expected cumulative reward J(πθd,πθc) is maximized by
+training the two policies following the gradient ascending di-
+rection of the objective function J(πθd,πθc).E q . (16) and (17)
+provide estimates of ∇J(πθd) and ∇J(πθc), respectively.
+∇J(θd) ≈ Eo∼ρ,a∼πθd
+) B∑
+t=1
+ˆAt∇θd logπθd(a|o)
+(
+, (16)
+∇J(θc) ≈ Eo∼ρ,x∼πθc
+) B∑
+t=1
+ˆAt∇θc logπθc(x|o,a)
+(
+, (17)
+whereB denotes the size of the mini-batch, andˆAt is an estimate
+of the advantage function given by the generalized advantage
+estimation (GAE) [41], which is deﬁned as
+ˆAt = rt +γVϕ(st+1)−Vϕ(st), (18)
+whereVϕ : S → R is utilized to quantify the expected cumula-
+tive reward from a given state. Estimating the policy gradient
+by using only the actor network suffers from the high variance,
+which may lead to incorrect updates of the policy parameters.
+To mitigate the variance, the critic network is introduced for
+estimating the value function Vϕ(st). We update the critic net-
+work by minimizing the loss function deﬁned in (19), which
+is designed according to the current state value and the target
+value.
+LV (ϕ)= ˆEt [(Vϕ(st)−(rt +γVϕ(st+1)))2]. (19)
+We use the SmoothL1Loss in PyTorch to optimize the critic loss
+function, which can effectively alleviate the impact of outliers
+and enhance the training stability.
+The maximization of J(πθd,πθc) is converted into the min-
+imization of the loss function of the policy network [42].T h e
+two policy networksπθd(a|o) andπθc(x|o,a) are updated along
+with the critic network Vϕ(s). Speciﬁcally, the discrete policy
+networkπθd is updated through minimizing a clipped surrogate
+Authorized licensed use limited to: Zhejiang Normal University. Downloaded on February 12,2026 at 04:44:20 UTC from IEEE Xplore.  Restrictions apply. 
+ZHANG et al.: ASYNCHRONOUS TASK SCHEDULING AND RESOURCE ALLOCA TION FOR UA V -ENABLED MOBILE EDGE COMPUTING NETWORKS 175
+objective [19], which is shown as
+Lclipd (θd)= ˆEt
+[
+min(rdt (θd) ˆAt, clip(rdt (θd),1−η,1+η) ˆAt)],
+(20)
+and the continuous policy network is similarly updated by min-
+imizing the following equation as
+Lclipc (θc)= ˆEt
+[
+min(rct(θc) ˆAt, clip(rct(θc),1−η,1+η) ˆAt)],
+(21)
+whererdt andrct denote the probability ratio of the original policy
+to the new policy for each policy network, which are deﬁned as
+follows.
+rdt (θd)= πθd(at|ot)πoldθd (at|ot), (22)
+rct(θc)= πθc(xt|ot,πθd(at|ot))πoldθc (xt|ot,πθd(at|ot)). (23)
+The entropy regularization term is also added to the loss func-
+tions (i.e., (20) and (21)) to increase the exploration rate [43],
+avoiding the premature convergence of the policy to the sub-
+optimal deterministic policy. Thus, the new loss functions can
+be represented asLclipd (θd)+ ζ∇θdH(π(ot;θd)) andLclipc (θc)+ζ∇θcH(π(ot,at;θc)) respectively, where H represents the en-
+tropy andζ serves as the coefﬁcient that determines the strength
+of the entropy regularization term, balancing the exploration and
+policy optimization.
+VI. E VA L U AT I O N
+Experiment conﬁguration: We implement the MECN simu-
+lation environment by using the standard gym interface [44]
+to communicate with agents (UA Vs). For both actor and critic
+networks of AL-MAPPO, their ﬁrst MLP consists of two hid-
+den layers with 32 and 64 units, which utilize rectiﬁed linear
+units (ReLU) non-linearity. The second layer is a GRU with
+a 64-dimensional hidden state. The last MLP has one hidden
+layer of 64 units, which utilize Hardswish non-linearity [45].
+The baseline algorithms used for comparison employ the similar
+training network architecture. Since each UA V has the same
+and constant ﬂight altitude, we consider a two-dimensional
+(2D) L×L network plane. We assume that EDs are randomly
+distributed within the 2D plane and the BS is located at the
+center of the plane. To improve the applicability of the proposed
+algorithm in various network scenarios, the locations of all EDs
+are randomly generated at the beginning of each episode during
+both training and testing processes.
+We conduct the simulation based on real log data from
+Alibaba Cluster Data V2017 [46]. We ﬁlter 3629 items from
+the task table, of which the required computations crj range in
+[20,200] CPU cores2 and the minimum required type-r resources
+are {1.0,0.5,0.7} (see Fig. 4). Also, the distribution of task
+deadlines is shown in Fig. 4. The tasks generated across EDs
+during the system operation are randomly selected from the
+ﬁltered dataset and the task generation is modeled as the Poisson
+process. For example, we show the number of accumulated
+generated requests and the number of requests generated at each
+slot under AL-MAPPO and NDF algorithms in Fig. 5.T h em a i n
+2The required computation crj is given by the product of the CPU core count
+and the number of instances in the V2017 trace. The ofﬂoaded task’s data size
+Dj is positively related to crj ; numerically, we deﬁne Dj = 12crj .
+Fig. 4. (1) The characterization of ﬁltered data from Alibaba Cluster Data
+V2017, which shows the distribution of number of tasks with respect to various
+required computations and minimum required type-r resources, respectively;
+(2) The distribution of task deadlines.
+Fig. 5. The change of generated requests under AL-MAPPO and NDF.
+simulation parameters follow [38], [47], with defaults listed in
+Table III unless otherwise speciﬁed.
+Baseline algorithms: Since currently there are no available
+methods that can be directly applied to solve the proposed
+problem in this work, we adapt representative MARL and
+heuristic task-scheduling baselines to our exact formulation and
+asynchronous operation, and evaluate them against AL-MAPPO
+under a uniﬁed asynchronous system model.r Asynchronous Multi-Agent Proximal Policy Optimiza-
+tion (A-MAPPO) is similar to AL-MAPPO but uses only
+discrete action selection, serving as an ablation to assess
+the effectiveness of the layered action design.r The Independent Proximal Policy Optimization
+(IPPO) [48] is a typical MARL baseline that treats each
+agent as an independent PPO learner under a decentralized
+training and decentralized execution (DTDE) framework.
+This baseline provides a comparator for quantifying the
+gains achieved by coordination mechanisms.r Random algorithm assumes that each UA V randomly
+selects a request from its candidate action set, which is
+constructed according to the greedy distance–deadline pri-
+ority deﬁned in Section III-A.r First-Come-First-Service (FCFS) algorithm[49] always
+chooses the earliest arriving request to serve.r Nearest Deadline First (NDF) algorithm [50] always
+gives the service priority to the request with the minimum
+remaining time until its task deadline.
+A. Parameter Sensitivity Analysis of AL-MAPPO
+To place the two terms of the reward function in (10) on a
+comparable scale, we choose a balancing coefﬁcientα∗ such that
+Authorized licensed use limited to: Zhejiang Normal University. Downloaded on February 12,2026 at 04:44:20 UTC from IEEE Xplore.  Restrictions apply. 
+176 IEEE TRANSACTIONS ON SERVICES COMPUTING, VOL. 19, NO. 1, JANUARY/FEBRUARY 2026
+TABLE III
+THE VALUES OF MAIN SYSTEM AND ALGORITHM PARAMETERS
+Fig. 6. Performance sensitivity analysis of AL-MAPPO with respect to α.
+||A|| ≈α∗||B||, where A and B represent the energy utility of
+UAVn and the task missing ratio at each time step, respectively
+(α∗ =2 0 in our case). We then perform a sensitivity analysis
+over α ∈{ 1,10,20,30}:f o r α<α ∗, the contribution of B is
+under-weighted, whereas forα>α ∗,t h eB-term dominates and
+may overly penalize the objective. Fig. 6 shows the training
+performance averaged over the last 100 training episodes with
+4 UA Vs after convergence.
+We observe a clear trade-off governed byα. First, excessively
+increasing the weight on B (the task missing ratio penalty)
+does not improve the missing ratio. Instead, it increases the task
+missing ratio as well as the average completion time. Because
+an over-weighted missing ratio penalty skews the objective
+toward short-term deadline avoidance, which have the following
+TABLE IV
+EXPERIMENTAL SETTINGS FOR CONVERGENCE AND SCALABILITY ANAL YSIS
+three consequences: (i) it drives overly conservative or myopic
+scheduling and rerouting, increasing request queuing delays; (ii)
+it induces frequent priority switches, causing tasks with shorter
+durations and lower resource requirements to be overlooked
+due to their larger tolerance windows, thus increasing the risk
+of missed tasks and extending completion times; and (iii) it
+distorts the reward landscape, leading to insufﬁcient exploration
+of throughput-efﬁcient actions, resulting in sub-optimal rewards.
+Conversely, moderately reducing the weight on the task missing
+ratio penalty improves both the missing ratio and energy utility:
+relaxing the penalty enables the policy to admit and schedule
+more tasks; although this may consume additional movement
+energy, a larger share of the energy budget is allocated to task
+computation, thus improving energy utility. However, reducing
+α too far makes the trade-off explicit: as shown, lowering α
+from 10 to 1 increases energy utility but raises the missing ratio,
+becauseα =1 over-prioritizes energy savings at the expense of
+deadline adherence. Accordingly, we set α =1 0in subsequent
+experiments to prioritize a low missing ratio.
+B. The Convergence and Scalability Analysis of AL-MAPPO
+Fig. 7 shows the AL-MAPPO training curves in terms of
+episodic rewards, energy utility, task missing ratio, and average
+task completion time using two random seeds while varying the
+number of UA Vs, initial UA V deployment position at the start of
+each episode, and task ofﬂoading channel models. The details
+of the experimental settings are deﬁned in Table IV.
+The scalability and performance consistency of our AL-
+MAPPO algorithm in different initial UA V deployment positions:
+Setting 1 vs. Setting 2. Both Setting 1 and Setting 2 use 4 UA Vs
+with a Rician task ofﬂoading channel model. In Setting 1, all
+UA Vs are initialized at (50,50) at the start of each training
+episode, whereas in Setting 2, the initial UA V positions are
+randomized across the entire L×L area. Although the learning
+curves with random initial UA V positions are less stable in
+the early stages, their ﬁnal performance is comparable to, or
+even surpasses, the ﬁxed-start baseline. This is because random,
+dispersed initial positions better exploit spatial proximity at the
+beginning of each episode, improving task accessibility and
+ofﬂoading opportunities.
+The robustness of our AL-MAPPO algorithm across various
+channel settings: Setting 1 vs. Settings 3 and 4. Setting 1, 3, and
+4 all use 4 UA Vs with the initial UA V deployment at (50,50). In
+Setting 1, the task ofﬂoading channel is modeled as a practical
+Rician, whereas Setting 3 uses a Path Loss (PL) model, and
+Setting 4 does not account for ofﬂoading delay. It is evident that
+when task ofﬂoading delay is ignored, the algorithm achieves the
+lowest task missing ratio and average completion time, but at the
+cost of lower energy utility. This is because ignoring ofﬂoading
+delay allows the UA V to respond to more requests, but the
+Authorized licensed use limited to: Zhejiang Normal University. Downloaded on February 12,2026 at 04:44:20 UTC from IEEE Xplore.  Restrictions apply. 
+ZHANG et al.: ASYNCHRONOUS TASK SCHEDULING AND RESOURCE ALLOCA TION FOR UA V -ENABLED MOBILE EDGE COMPUTING NETWORKS 177
+Fig. 7. Convergence and scalability of AL-MAPPO across episodic rewards, energy utility, missing ratio and average completion time under various se ttings.
+Fig. 8. Performance comparison for different UA V counts, measured by energy utility, task missing ratio, average completion time, and pending reque sts.
+increased movement distance raises energy consumption relative
+to that of computation. In contrast, the other two channel models,
+which account for ofﬂoading delay, lead to delayed responses
+for requests, thereby increasing the missing ratio and average
+completion time. Additionally, the UA Vs experience waiting
+time during task ofﬂoading, and the increased computational
+energy spent during this period on processing the task queue
+enhances energy utility. Speciﬁcally, under a PL-only model, the
+per-slot uplink rate is effectively constant, so an individual task’s
+ofﬂoading time is primarily determined by its payload size.
+In the Rician fading channel, time-varying channel conditions
+randomize the per-slot ofﬂoading rate, complicating scheduling
+decisions and leading to worse performance compared to the
+PL-only model in all metrics.
+The convergence and scalability of our AL-MAPPO algorithm
+with various numbers of UA Vs: Setting 1, 5, 6, and 7. Across
+numbers of 4 to 7 UA Vs, with the initial deployment at (50, 50)
+and a Rician fading channel, AL-MAPPO consistently reduces
+both the task missing ratio and average task completion time
+as the UA V count increases. As shown in Fig. 7(c) and (d),
+the increased number of UA Vs allows more requests to be
+processed before their deadlines, leading to these improvements.
+In contrast, the energy utility decreases with the number of
+UA Vs, which is shown in Fig. 7(b). Because as the number of
+UA Vs increases, the average number of EDs that each UA V
+needs to serve is decreased, and thus each UA V may consume
+less energy on task computation, which decreases the average
+energy utility. Additionally, in Fig.7(a)–(d), we also observe that
+AL-MAPPO converges faster with a larger number of UA Vs
+across all metrics. This is because all UA Vs share the same
+actor network based on the asynchronous execution framework,
+and thus the larger number of UA Vs can provide more training
+data.
+In summary, AL-MAPPO converges to a balanced solution
+and shows scalability across settings with varying initial UA V
+positions, task ofﬂoading channel models, and UA V counts.
+C. Performance Evaluation With V arying Numbers of UA Vs
+Fig. 8(a)–(d) show the results of a comparative experiment
+with the initial UA V deployment at (50,50), a Rician fading
+channel model, and the number of UA Vs ranging from 2 to 7
+across ﬁve baselines. The results are averaged over 100 test
+episodes with the trained policy. We compare AL-MAPPO
+with the ﬁve baseline algorithms with respect to the follow-
+ing performance metrics: 1) total energy utility of all UA Vs
+that indicates the amount of energy used for task computation
+against the total amount of energy used for movement and task
+computation during a testing episode; 2) total task missing ratio
+that indicates the proportion of the number of missed tasks to
+the total number of generated tasks during a testing episode;
+3) average task completion time that indicates the average time
+from when each task is generated until it completes computation.
+We also study how the number of pending requests changes over
+time under our algorithm as well as the baseline algorithms in
+Fig. 8(d).
+Results in Fig. 8(a)–(c) demonstrate the superiority of AL-
+MAPPO compared with the other ﬁve baseline approaches. The
+main reason is that our algorithm can better balance the energy
+cost between the UA V’s movement and the task computation.
+Speciﬁcally, with our proposed algorithm, each UA V can usually
+ﬁnd a better request to serve by comprehensively considering the
+moving distance, the task deadline, and the available onboard
+computing and energy resources. As shown in Fig.8(a), increas-
+ing the number of UA Vs may reduce the average energy utility, as
+indicated by the energy utility curves for most algorithms. This
+observation was analyzed in Section VI-B. We also ﬁnd that the
+NDF and FCFS algorithms cannot effectively decrease the task
+missing ratio and the average task completion time particularly
+when the number of UA Vs is small. Because they don’t take
+into account the distance between the UA V’s current location
+and the target ED. In addition, IPPO performs well with small
+UA V counts but degrades as the number of UA Vs increases due
+Authorized licensed use limited to: Zhejiang Normal University. Downloaded on February 12,2026 at 04:44:20 UTC from IEEE Xplore.  Restrictions apply. 
+178 IEEE TRANSACTIONS ON SERVICES COMPUTING, VOL. 19, NO. 1, JANUARY/FEBRUARY 2026
+Fig. 9. Distribution of the energy utility for each dispatched UA V over 100
+test episodes.
+Fig. 10. Resource-type utility of each dispatched UA V , averaged over 100 test
+episodes.
+to limited coordination from its DTDE and local-observation
+design. In contrast, A-MAPPO is more competitive with larger
+UA V counts but underperforms at smaller UA V counts because
+it lacks a resource-allocation policy for scheduled tasks.
+Fig. 8(d) shows how the number of pending requests changes
+over slots under our algorithm as well as the baseline algorithms
+when the number of UA Vs is 4. We can see that AL-MAPPO
+maintains the minimum level of real-time pending requests,
+compared with the other ﬁve baseline algorithms. Because our
+algorithm enables each UA V to appropriately schedule the re-
+quest and allocate the computing resource by comprehensively
+considering its own status and the request’s information. We note
+that the number of pending requests increases rapidly just before
+the end of an episode, because each episode ends either when the
+maximum number of slots is reached or when all UA V batteries
+are drained. Since it is almost impossible for all dispatched UA Vs
+to deplete their batteries simultaneously while new requests keep
+arriving, pending requests accumulate as the dispatched UA Vs
+leave the system sequentially due to battery depletion.
+D. Analysis of Load Balancing and Throughput
+We investigate the load balancing among dispatched UA Vs
+using various metrics under AL-MAPPO, as well as total
+throughput (completed task counts) and completed computation
+(required for completing tasks) across all evaluation algorithms.
+The results shown in Figs. 9–12 are based on 100 test episodes
+with Setting 1 and the trained policy. In Fig.9, the median energy
+utility of each dispatched UA V across 100 episodes maintains a
+relatively uniform and high value above 87.3%, generally close
+to the average of the four UA Vs. This indicates that the task
+scheduling among the dispatched UA Vs is well balanced, and
+they spend most of their energy on task computation. Fig. 10
+shows the average utility of each computational resource types
+on each dispatched UA V , measured during effective computation
+time slots. We observe that the utility of each resource type is
+Fig. 11. Distribution of the completed task throughput and the completed
+computation of each dispatched UA V over 100 test episodes.
+Fig. 12. Comparison of the distributions of completed task throughput and
+completed computation during the service period over 100 test episodes.
+TABLE V
+JAIN’S FAIRNESS IN D I C E SO FP E R-UA V PERFORMANCE METRICS
+UNDER AL-MAPPO
+relatively stable across UA Vs. Fig. 11 presents the throughput
+and completed computation of each dispatched UA V . Simi-
+larly, across 100 test episodes, for each dispatched UA V the
+per-episode medians of throughput and completed computation
+lie close to the corresponding means, with only small devia-
+tions, demonstrating that our algorithm effectively balances the
+workload across all dispatched UA Vs. Under AL-MAPPO, no
+dispatched UA Vs may have the excessive workload or energy
+consumption, which is the key to outperforming the baseline
+algorithms.
+We further quantify the load balancing across the dispatched
+UA Vs using Jain’s fairness index [51]. Given a set of per-UA V
+values xNn=1 for a given metric, the Jain index is deﬁned as
+J(x)=
+(∑N
+n=1 xn
+)2
+N ∑Nn=1 x2n , (24)
+which takes values in (0,1], with J(x)=1 indicating perfect
+fairness. In our experiments, for each metric we ﬁrst average the
+per-UA V values over 100 test episodes and then compute the Jain
+index across the four dispatched UA Vs. As reported in TableV,
+the fairness indices for energy utility (EU), resource utilization
+(RU), throughput, and completed computation are all very close
+to 1, indicating that AL-MAPPO achieves highly balanced loads
+among UA Vs across all these metrics.
+Authorized licensed use limited to: Zhejiang Normal University. Downloaded on February 12,2026 at 04:44:20 UTC from IEEE Xplore.  Restrictions apply. 
+ZHANG et al.: ASYNCHRONOUS TASK SCHEDULING AND RESOURCE ALLOCA TION FOR UA V -ENABLED MOBILE EDGE COMPUTING NETWORKS 179
+Fig. 12 shows the system throughput (i.e., the number of
+accomplished tasks) and completed computation in each service
+cycle, under AL-MAPPO and other baseline algorithms. Our
+algorithm achieves both the maximum system throughput and
+completed computation and demonstrates the consistent perfor-
+mance across 100 testing episodes. Among all the six algorithms
+in Fig. 12, NDF achieves the lowest average system throughput
+and has the widest range of throughput variation, indicating
+that the deadline-driven algorithm suffers from neglecting the
+dynamic of requests and the movement cost for serving requests,
+as it always prioritizes tasks with early deadlines while ignoring
+the delay caused by movement. In contrast, the RANDOM
+algorithm achieves the relatively good performance, primarily
+due to its integration with our asynchronous action execution
+framework and the careful design of its scheduling list to align
+with that of AL-MAPPO. Additionally, the high completed com-
+putation achieved by our algorithm indicates that AL-MAPPO
+performs well in resource allocation. Based on the accumulated
+generated requests in Fig. 5 and the number of completed tasks
+(throughput) in Fig. 12, we may conclude that AL-MAPPO en-
+ables the dispatched UA Vs to well serve nearly all the generated
+requests during one service cycle. This is attributable to our
+AL-MAPPO algorithm’s superior load-balancing performance.
+VII. C ONCLUSION
+In this work, we maximized the energy utility of each UA V
+on average while minimizing the overall task missing ratio in
+a general multi-UA V enabled MECN, by jointly optimizing
+the task scheduling and resource allocation of each UA V . To
+address the inaccessibility to the exact ED-side information
+and the asynchronous operation of each UA V , we designed
+a MARL based algorithm called AL-MAPPO, which enables
+UA Vs to cooperatively learn their optimal strategies of request
+selection and resource allocation, by asynchronously interacting
+with the dynamic MEC environment. Extensive experiments
+based on real-world data trace demonstrate that our algorithm
+outperforms several baselines in terms of task missing ratio and
+average task completion time. We also evaluated load balancing
+among UA Vs in energy, resource utility, and throughput under
+AL-MAPPO, further highlighting its superiority. In the future,
+we will explore service-heterogeneous UA V -enabled MECNs,
+where heterogeneous UA Vs will support various service types by
+using intelligent trajectory planning strategies to meet broader
+service demands.
+REFERENCES
+[1] T. X. Tran, A. Hajisami, P . Pandey, and D. Pompili, “Collaborative
+mobile edge computing in 5G networks: New paradigms, scenarios, and
+challenges,” IEEE Commun. Mag., vol. 55, no. 4, pp. 54–61, Apr. 2017.
+[2] Y . Chen, D. Wang, N. Wu, and Z. Xiang, “Mobility-aware edge server
+placement for mobile edge computing,” Comput. Commun. , vol. 208,
+pp. 136–146, 2023. [Online]. Available: https://api.semanticscholar.org/
+CorpusID:259810534
+[3] C. Wang, C. Liang, F. R. Y u, Q. Chen, and L. Tang, “Computation ofﬂoad-
+ing and resource allocation in wireless cellular networks with mobile edge
+computing,”IEEE Trans. Wireless Commun., vol. 16, no. 8, pp. 4924–4938,
+Aug. 2017.
+[4] C. Y ou, K. Huang, H. Chae, and B.-H. Kim, “Energy-efﬁcient resource
+allocation for mobile-edge computation ofﬂoading,”IEEE Trans. Wireless
+Commun., vol. 16, no. 3, pp. 1397–1411, Mar. 2017.
+[5] R. Cong, Z. Zhao, L. Zhang, and G. Min, “Cost-effective server deploy-
+ment for multi-access edge networks: A cooperative scheme,”IEEE Trans.
+Parallel Distrib. Syst., vol. 35, no. 9, pp. 1583–1597, Sep. 2024.
+[6] H. Xue and Y . Xia, “Proﬁt-aware edge server placement based on all-pay
+auction for edge ofﬂoading,” in Proc. IEEE/ACM 32nd Int. Symp. Qual.
+Service, 2024, pp. 1–2.
+[7] J. Wu et al., “Fairness-aware budgeted edge server placement for con-
+nected autonomous vehicles,”IEEE Trans. Mobile Comput., vol. 24, no. 6,
+pp. 4762–4776, Jun. 2025.
+[8] Q. Hu, Y . Cai, G. Y u, Z. Qin, M. Zhao, and G. Y . Li, “Joint ofﬂoading
+and trajectory design for UA V -enabled mobile edge computing systems,”
+IEEE Internet Things J. , vol. 6, no. 2, pp. 1879–1892, Apr. 2019.
+[9] Z. Zhou and J. Abawajy, “Reinforcement learning-based edge
+server placement in the intelligent Internet of V ehicles environ-
+ment,” IEEE Trans. Intell. Transp. Syst. , early access, Apr. 14, 2025,
+doi: 10.1109/TITS.2025.3557259.
+[10] Y . Zhang, W. Wang, J. Ren, J. Huang, S. He, and Y . Zhang, “Efﬁcient
+revenue-based MEC server deployment and management in mobile edge-
+cloud computing,”IEEE/ACM Trans. Netw., vol. 31, no. 4, pp. 1449–1462,
+Aug. 2023.
+[11] T. Zhang, Y . Xu, J. Loo, D. Y ang, and L. Xiao, “Joint computation
+and communication design for UA V -assisted mobile edge computing
+in IoT,” IEEE Trans. Ind. Informat. , vol. 16, no. 8, pp. 5505–5516,
+Aug. 2020.
+[12] F. Xu, Z. Zhang, J. Feng, Z. Qin, and Y . Xie, “Efﬁcient deployment of multi-
+UA V assisted mobile edge computing: A cost and energy perspective,”
+Trans. Emerg. Telecommun. Technol., vol. 33, no. 5, 2022, Art. no. e4453.
+[13] J. Zhang et al., “Computation-efﬁcient ofﬂoading and trajectory schedul-
+ing for multi-UA V assisted mobile edge computing,” IEEE Trans. V eh.
+Technol., vol. 69, no. 2, pp. 2114–2125, Feb. 2020.
+[14] M. Li, N. Cheng, J. Gao, Y . Wang, L. Zhao, and X. Shen, “Energy-efﬁcient
+UA V -assisted mobile edge computing: Resource allocation and trajectory
+optimization,” IEEE Trans. V eh. Technol., vol. 69, no. 3, pp. 3424–3438,
+Mar. 2020.
+[15] J. Ji, K. Zhu, C. Yi, and D. Niyato, “Energy consumption minimization
+in UA V -assisted mobile-edge computing systems: Joint resource allo-
+cation and trajectory design,” IEEE Internet Things J. , vol. 8, no. 10,
+pp. 8570–8584, May 2021.
+[16] Y . Qian, F. Wang, J. Li, L. Shi, K. Cai, and F. Shu, “User association
+and path planning for UA V -aided mobile edge computing with energy
+restriction,” IEEE Wireless Commun. Lett. , vol. 8, no. 5, pp. 1312–1315,
+Oct. 2019.
+[17] H. Guo, Y . Wang, J. Liu, and C. Liu, “Multi-UA V cooperative task
+ofﬂoading and resource allocation in 5G advanced and beyond,” IEEE
+Trans. Wireless Commun., vol. 23, no. 1, pp. 347–359, Jan. 2024.
+[18] K. Zhang, J. Wang, E. Hua, B. Qi, N. Ding, and B. Zhou, “CoGenesis:
+A framework collaborating large and small language models for secure
+context-aware instruction following,” Bangkok, Thailand: Association for
+Computational Linguistics, Aug. 2024, pp. 4295–4312. [Online]. Avail-
+able: https://aclanthology.org/2024.acl-long.235/
+[19] C. Y u et al., “The surprising effectiveness of PPO in cooperative multi-
+agent games,” in Proc. Adv. Neural Inf. Process. Syst. , 2022, vol. 35,
+pp. 24611–24624.
+[20] Y . Li et al., “Task placement and resource allocation for edge machine
+learning: A GNN-based multi-agent reinforcement learning paradigm,”
+IEEE Trans. Parallel Distrib. Syst. , vol. 34, no. 12, pp. 3073–3089,
+Dec. 2023.
+[21] H. Zhang et al., “Joint resource allocation and trajectory optimization
+in multi-cell UA V and sidelink heterogeneous networks,” IEEE Trans.
+Wireless Commun., vol. 23, no. 11, pp. 16635–16647, Nov. 2024.
+[22] J. Guo, Z. Song, Y . Cui, Z. Liu, and Y . Ji, “Energy-efﬁcient resource
+allocation for multi-user mobile edge computing,” in Proc. GLOBECOM
+2017-2017 IEEE Glob. Commun. Conf. , 2017, pp. 1–7.
+[23] J. Ren, G. Y u, Y . Cai, and Y . He, “Latency optimization for resource
+allocation in mobile-edge computation ofﬂoading,” IEEE Trans. Wireless
+Commun., vol. 17, no. 8, pp. 5506–5519, Aug. 2018.
+[24] C. Y ou, Y . Zeng, R. Zhang, and K. Huang, “Asynchronous mobile-edge
+computation ofﬂoading: Energy-efﬁcient resource management,” IEEE
+Trans. Wireless Commun., vol. 17, no. 11, pp. 7590–7605, Nov. 2018.
+[25] X. Qin et al., “Timeliness-oriented asynchronous task ofﬂoading in UA V -
+edge-computing systems,” IEEE Trans. Netw. Sci. Eng. , vol. 11, no. 1,
+pp. 900–912, Jan./Feb. 2024.
+[26] S. Tuli, S. Ilager, K. Ramamohanarao, and R. Buyya, “Dynamic scheduling
+for stochastic edge-cloud computing environments using A3C learning and
+residual recurrent neural networks,”IEEE Trans. Mobile Comput., vol. 21,
+no. 3, pp. 940–954, Mar. 2022.
+[27] H. Qi et al., “Bridge the present and future: A cross-layer matching
+game in dynamic cloud-aided mobile edge networks,”IEEE Trans. Mobile
+Comput., vol. 23, no. 12, pp. 12522–12539, Dec. 2024.
+Authorized licensed use limited to: Zhejiang Normal University. Downloaded on February 12,2026 at 04:44:20 UTC from IEEE Xplore.  Restrictions apply. 
+180 IEEE TRANSACTIONS ON SERVICES COMPUTING, VOL. 19, NO. 1, JANUARY/FEBRUARY 2026
+[28] M. Liwang, Z. Gao, and X. Wang, “Let’s trade in the future! a futures-
+enabled fast resource trading mechanism in edge computing-assisted UA V
+networks,” IEEE J. Sel. Areas Commun. , vol. 39, no. 11, pp. 3252–3270,
+Nov. 2021.
+[29] B. Guo et al., “Seamless graph task scheduling over dynamic vehicular
+clouds: A hybrid methodology for integrating pilot and instantaneous
+decisions,” IEEE Trans. Serv. Comput. , vol. 18, no. 3, pp. 1753–1768,
+May/Jun. 2025.
+[30] X. Y an, X. Fang, C. Deng, and X. Wang, “Joint optimization of resource
+allocation and trajectory control for mobile group users in ﬁxed-wing UA V -
+enabled wireless network,” IEEE Trans. Wireless Commun., vol. 23, no. 2,
+pp. 1608–1621, Feb. 2024.
+[31] B. Jamil, H. Ijaz, M. Shojafar, and K. Munir, “Irats: A drl-based intelligent
+priority and deadline-aware online resource allocation and task scheduling
+algorithm in a vehicular fog network,” Ad hoc Netw. , vol. 141, 2023,
+Art. no. 103090.
+[32] Y . Peng, Y . Bao, Y . Chen, C. Wu, C. Meng, and W. Lin, “DL2: A deep
+learning-driven scheduler for deep learning clusters,”IEEE Trans. Parallel
+Distrib. Syst., vol. 32, no. 8, pp. 1947–1960, Aug. 2021.
+[33] X. Zhao and C. Wu, “Large-scale machine learning cluster scheduling
+via multi-agent graph reinforcement learning,” IEEE Trans. Netw. Service
+Manag., vol. 19, no. 4, pp. 4962–4974, Dec. 2022.
+[34] N. Zhao, Z. Y e, Y . Pei, Y .-C. Liang, and D. Niyato, “Multi-agent deep
+reinforcement learning for task ofﬂoading in UA V -assisted mobile edge
+computing,”IEEE Trans. Wireless Commun., vol. 21, no. 9, pp. 6949–6960,
+Sep. 2022.
+[35] S. Liao, J. Wu, S. Mumtaz, J. Li, R. Morello, and M. Guizani, “Cognitive
+balance for fog computing resource in Internet of Things: An edge learning
+approach,” IEEE Trans. Mobile Comput. , vol. 21, no. 5, pp. 1596–1608,
+May 2022.
+[36] D. Xu and H. Zhu, “Sum-rate maximization of wireless powered primary
+users for cooperative CRNs: NOMA or TDMA at cognitive users?,” IEEE
+Trans. Commun., vol. 69, no. 7, pp. 4862–4876, Jul. 2021.
+[37] D. Xu, “A novel hybrid NOMA-TDMA scheme for wireless feder-
+ated learning networks,” IEEE Trans. V eh. Technol. , vol. 74, no. 5,
+pp. 8448–8453, May 2025.
+[38] Y . Han, L. Liu, L. Duan, and R. Zhang, “Towards reliable UA V swarm
+communication in D2D-enhanced cellular networks,” IEEE Trans. Wire-
+less Commun., vol. 20, no. 3, pp. 1567–1581, Mar. 2021.
+[39] Y . Liang, H. Wu, and H. Wang, “ASM-PPO: Asynchronous and scalable
+multi-agent PPO for cooperative charging,” in Proc. 21st Int. Conf. Auton.
+Agents Multiagent Syst., 2022, pp. 798–806.
+[40] P .-W. Chou, D. Maturana, and S. Scherer, “Improving stochastic policy
+gradients in continuous control with deep reinforcement learning using the
+beta distribution,” in Proc. Int. Conf. Mach. Learn. , 2017, pp. 834–843.
+[41] J. Schulman, P . Moritz, S. Levine, M. Jordan, and P . Abbeel, “High-
+dimensional continuous control using generalized advantage estimation,”
+2015, arXiv:1506.02438.
+[42] J. Schulman, F. Wolski, P . Dhariwal, A. Radford, and O. Klimov, “Proximal
+policy optimization algorithms,” 2017, arXiv:1707.06347.
+[43] R. J. Williams and J. Peng, “Function optimization using connection-
+ist reinforcement learning algorithms,” Connection Sci. , vol. 3, no. 3,
+pp. 241–268, 1991.
+[44] G. Brockman et al., “Openai gym,” 2016, arXiv:1606.01540.
+[45] A. Howard et al., “Searching for mobilenetv3,” in Proc. IEEE/CVF Int.
+Conf. Comput. Vis., 2019, pp. 1314–1324.
+[46] Alibaba, “Alibaba/clusterdata,” 2017. [Online]. Available: https://github.
+com/alibaba/clusterdata/tree/master/cluster-trace-v2017
+[47] Y . Zeng, J. Xu, and R. Zhang, “Energy minimization for wireless commu-
+nication with rotary-wing UA V,”IEEE Trans. Wireless Commun., vol. 18,
+no. 4, pp. 2329–2345, Apr. 2019.
+[48] C. S. De Witt et al., “Is independent learning all you need in the starcraft
+multi-agent challenge?,” 2020, arXiv:2011.09533.
+[49] T. Aladwani, “Types of task scheduling algorithms in cloud computing
+environment,” in Scheduling Problems-New Applications and Trends.
+London, U.K.: IntechOpen, 2020, pp. 1–12.
+[50] G. Le, K. Xu, and J. Song, “Dynamic resource provisioning and scheduling
+with deadline constraint in elastic cloud,” in Proc. 2013 Int. Conf. Service
+Sci., 2013, pp. 113–117.
+[51] H. He, W. Y uan, S. Chen, X. Jiang, F. Y ang, and J. Y ang, “Deep reinforce-
+ment learning-based distributed 3D UA V trajectory design,” IEEE Trans.
+Commun., vol. 72, no. 6, pp. 3736–3751, Jun. 2024.
+Xiuling Zhang received the MS degree in software
+engineering from Zhejiang Normal University, China,
+in 2022. She is currently working toward the PhD
+degree with the College of Systems Engineering,
+National University of Defense Technology, Chang-
+sha, China. From 2023 to 2025, she was a visiting
+student with the Engineering Systems and Design
+Pillar, Singapore University of Technology and De-
+sign, Singapore. Her current research interests include
+mobile edge computing, smart IoT, and reinforcement
+learning.
+Riheng Jia (Member, IEEE) received the BE degree
+in electronics and information engineering from the
+Huazhong University of Science and Technology,
+China, in 2012, and the PhD degree in computer
+science and technology from Shanghai Jiao Tong Uni-
+versity, Shanghai, China, in 2018. He is currently an
+associate professor with the School of Computer Sci-
+ence and Technology, Zhejiang Normal University,
+China. His current research interests include wireless
+networks, energy harvesting networks, and smart IoT.
+Quanjun Yin was born in Hunan, China, in 1978.
+He received the BS, MS, and PhD degrees in simula-
+tion engineering from the College of Systems Engi-
+neering, National University of Defense Technology,
+Changsha, China, in 2008. His research interests in-
+clude cognitive process modeling, qualitative spatial
+reasoning and planning, cooperation and negotiation,
+cloud-based simulation, and edge computing.
+Zhonglong Zheng (Member, IEEE) received the
+BE degree from the China University of Petroleum,
+China, in 1999, and the PhD degree from Shanghai
+Jiao Tong University, China, in 2005. He is currently
+a full professor with the School of Computer Science
+and Technology, Zhejiang Normal University, China.
+His research interests include machine learning, com-
+puter vision, and blockchain.
+Minglu Li (Fellow, IEEE) received the PhD degree in
+computer software from Shanghai Jiao Tong Univer-
+sity, in 1996. He is currently a full professor and the
+director of Artiﬁcial Intelligence Internet of Things
+Center, Zhejiang Normal University. He is also the
+Director of Network Computing Center, Shanghai
+Jiao Tong University. He has authored or coauthored
+more than 400 papers in academic journals and inter-
+national conferences. His research interests include
+vehicular networks, Big Data, cloud computing, and
+wireless sensor networks. He was the chairman of
+Technical Committee on Services Computing from 2004 to 2016 and Technical
+Committee on Distributed Processing from 2005 to 2017, of IEEE Computer
+Society in Great China region. He was the general co-chair of IEEE SCC, IEEE
+CCGrid, IEEE ICPADS, and IEEE IPDPS, and a vice chair of IEEE INFOCOM.
+He was also a PC member of more than 50 international conferences including
+IEEE INFOCOM from 2009 to 2016, and IEEE CCGrid 2008.
+Authorized licensed use limited to: Zhejiang Normal University. Downloaded on February 12,2026 at 04:44:20 UTC from IEEE Xplore.  Restrictions apply. 

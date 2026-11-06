@@ -1,0 +1,47 @@
+{
+  "methods": [
+    "HQC_SAC_MAIN",
+    "TD3",
+    "CDA_SAC_ADAPTED",
+    "PPO"
+  ],
+  "train_seeds": [
+    7,
+    17,
+    27
+  ],
+  "eval_seeds": [
+    9000,
+    9001,
+    9002,
+    9003,
+    9004,
+    9005,
+    9006,
+    9007,
+    9008,
+    9009,
+    9010,
+    9011,
+    9012,
+    9013,
+    9014,
+    9015,
+    9016,
+    9017,
+    9018,
+    9019,
+    9020,
+    9021,
+    9022,
+    9023,
+    9024,
+    9025,
+    9026,
+    9027,
+    9028,
+    9029
+  ],
+  "episode_count": 360,
+  "note": "Energy re-evaluation on 30 common development scenes; QSR/Joule and Goodput/Joule derivable from episode metrics."
+}

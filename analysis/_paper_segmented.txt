@@ -1,0 +1,362 @@
+IEEE TRANSACTIONS ON WIRELESS COMMUNICATIONS1History-AwareMinimum-QoSScheduling and DeepReinforcementLearning-BasedControlforTwo-
+TierUAVNetworks Yangyang Zeng,XiulingZhangandRihengJia,Member,IEEEAbstract-Unmannedaerialvehicle(UAV)-assistedcommuni-ca tions off e r fl e xi b le deployment and wide-
+area con n ec ti vi ty for emergency communication andservice restoration.Indynamichigh-loadtwo-tierUAVnetworks,randomground-user(GU)arrivals and departures cause fl u c t u a tions in aggregate minimum-
+ratedemand,while GU mobility changes wireless link conditions.Under limited onboard resources,not all active GUs can meet their minimum-
+raterequirements simultaneously,and repeatedly prior i tizi ng resource-eff i ci en t users may lead top r o long ed con-secutiveunder-
+serviceforothers.Toaddressthesechallenges,we formulate a service optimization problem that maximizes the per-slotaverageminimum-
+QoS completion ratio while con s training the longest consecutiveunder-servicedurationofeachuser.Weproposehistory-awareQoS-completionsoftactor-critic(HQC-SAC).HQC-SACcombinesahistory-
+awareQoS-completionscheduler(HA-QCS),which first rescues users closest to vi o latin g the constraint andthe n serves the others in ascending order of resource cost,with a reinforcement learning controller t
+h at adapts the motion of the central UAV and its backhaul power foreach serving UAV using learning targets matched to thetime scale of each action.SimulationsshowthatHQC-SACimprovestheminimum-
+ratesatisfactionratioby5.9%-22.0%overlearning-based baselines and raises the fifth-percentile service availability by37.3%overthebestbaseline,while its scheduler shortens the95th-
+percentileunder-servicedurationbymorethan86%relativetocompletion-firstscheduling with120users.IndexTerms-UAVcommunications,wirelessbackhaul,mini-
+mumqualityofservice,servicecontinuity,reinforcementlearn-
+ing.I.INTRODUCTIONA.Background and Mo ti va tion Unmannedaerialvehicle s(UAVs)can be r ap id l y d ep lo y ed in emergency and hotspot scenarios,such as di sa ste r relief andservice restoration,andtheirthree-
+dimensional mobility enables line-of-sight-dominatedair-to-groundlinks.A single UAV is constrained by limited onboard energy and radio resources,re strict ing its coverage and capacity to serve con-
+currentusers.Cooperativemulti-UAV systems can all e vi at e these limitations by extend ing coverage and dist r i but ing traffic loads,but they also intro d u cec o channel interference,inter-
+UAVresourcecontention,and coupled trajectory and resource-allocationdecisions[1].Atwo-tierarchitecture separate s the aerial backhaul from the ground-useraccess,so that thetwo tiers can be control le
+d separately but in co or di na tion.Its This work was supported by the Na tion al Natural Science Found a tion of China under G r an tX X X X X X X X.Y.Zeng,X.ZhangandR.Jia are with the Sch o o l of Computer Science andT ec h no l
+o g y,ZhejiangNormalUniversity,Jinhua321004,China(corre-spondingauthor:RihengJia,e-mail:rihengjia@zjnu.edu.cn).effectiveness,however,isdeterminedbytheend-to-
+endservice delivered over both tiers rather than by the coverage geometry alone.Such mission s are of ten dynamic and high-
+load:the number of active ground users(GUs)varieswithinamission,and during peaks their aggregate minimum-ratedemand exceeds the capacity of the access and backhaul links.Random user arrivals anddepart u r
+es change the active user population,while mobility alter s the spatial distribution of demand and wireless link conditions.Consequently,whether the access link or the backhaul link limits each GU's delivered
+rate changes contin u all y.Undersuchloads,aggregate throughput or energy efficiency can remain favorable even when some GUs repeatedly fail to receive their minimumrates.Moreover,a scheduler that maximize
+s the number of sat is fi ed GUs ineachslot tends to fa v or GUs with strong channels or low raterequirements,keep ing the remaining GUs under-servedforlongperiods.This paper therefore ai ms to maximize the frac ti o
+no f GUs meeting their minimumrates while bound ing how long any GU can remain below its minimum rate.B.AB r i ef Introduction o fOur Work and Challenges In this work,westudyminimum-rateserviceinadynamichigh-
+loadtwo-tierUAVdownlink,whereacentralUAV(C-UAV)provides wirelessbackhaul to multiple marginal UAVs(M-
+UAVs),whichinturnservetheGUs.Fig.1i l l u st rates the network architecture and operating process,and Section III details the mathematical model.Specifically,GUsrandomlyarrive,depart,andmovedur-
+ingthemission,and each GU keeps a fixed minimum-rate requirement for its session,so the aggregate load grows ands h r in k swith the number andservice classes of active GUs.TheC-UAVforwardsdatatotheM-
+UAVsoverapower-domainnon-orthogonalmultipleaccess(NOMA)backhaul,andeachM-UAV shares its access resources among its associated GUs.A GUi s sat is fi e di na slot only if its end-to-
+enddeliveredrate reaches its minimum rate,andthe outcomes of successive slots form each GU'shistory of consecutiveunder-service.Our objective is to maximize thetime-
+averaged fraction of active GUs that meet their minimumrates ineachslot,while limit ing the longest consecutiveunder-serviceofeachGU.So l v ing this problem raises three main challenges.Dynamicaccess-
+backhaulcoupling:Strong access links alone do not guarantee delivery when the serving relay is backhaul-limited.Conversely,sufficient backhaul does not\n IEEE TRANSACTIONS ON WIRELESS COMMUNICATIONS2over come poor access efficiency.Session c hu rn and mobility change both bottleneck s,whileC-
+UAV trajectory and power decisions re dist r i but e downlink backhaul capacity.Inthecon-sideredsystem,M-UAVsreuseacommon access resource while theC-UAV distributes finite NOMA backhaul power across relay
+s.Thus,i m prov ing the wirelessbackhaul of one relay need not resolve access sca r cit y in another.The controller must therefore ac count for both the geometry-dependent rates andthe resource com pe ti tion in end-
+to-enddelivery.Completion versus persistent under-service:Whendemandexceedscapacity,s p read ing partial rates overall users com-pletesfewofthem.Serving the users with the lowest com-
+p le tioncost maximizes the number of sat is fi ed sessions ineachslot,but repeating this choice starves the same resource-expensive sessions slot after slot.Mean completion andthe tail of consecutiveunder-s e
+r vi ce therefore co nfl i c t,andthe scheduler must balance them explicitly rather than optimize either one alone.H et e r o g en e o u s action credit and relay structure:C-
+UAVmotion reshape s the network geometry and affects service over many subsequent slots,whereas backhaul power mainly redistributes capacity within the current slot.A single value target therefore m is assign
+s credit to at least one of thetwo actions.Inaddition,M-
+UAVs are interchangeable service entities whose index order carries no physical meaning and whose number may vary,so the controller requires a relay representation that respects this structure.To address the s
+e challenges,weproposehistory-awareQoS-completionsoftactor-critic(HQC-SAC),a framework that couples a slot-levelhistory-awareQoS-completionscheduler(HA-QCS)withalearnedbranch-creditC-
+UAVcontroller.The scheduler determines feasible minimum-ratecompletionsundertwo-hopresourceconstraints,whilethelearnedcon-trolleradaptsC-UAVmotionandbackhaul-powerallocation.Thetwo c omp
+one n ts inter ac t through the delivered service:the controller sets the capacities that the scheduler allocates,andthe scheduling outcomes form the controller'srewardandnextobservation.The main con t r i b u
+tions,each address ing the corresponding ch all e ng e,aresummarizedasfollows.\225DynamicHigh-LoadTwo-TierUAVCommunicationMod-e l ing and Problem Formulation:Weestablishadynamictwo-
+tierUAVdownlink model with time-varyingGUpop-u l a tions and fixed per-sessionminimum-raterequirements.By jointly accounting for shared access resources and power-
+domain NOMA backhaul constraints,wecharacter-izetheend-to-endminimum-QoS completion conditions under limited two-hopcapacity.Wethenformulateaser-
+vi ce optimization problem that considers both minimum-QoS completion efficiency and consecutiveunder-serviceindynamichigh-loadconditions.\225History-AwareTwo-HopCompletionScheduling:Wede-
+velopHA-QCS,which first screen s the users whose access links can support their minimumrates,then rescues the most overdue of them,completes the others in ascending order of two-
+hopresourcecost,and finally distributes the residual resources.A single guard threshold on the consecutiveunder-
+service duration thus controls the tail target ed by thecontinuityconstraint.With120users,HA-QCSshortensthe95th-percentile outage by more than sevenfold relativetocompletion-
+firstscheduling at a small cost in completion.\225Branch-CreditC-UAVControlwithRelay-StructuredRepre-sentation:Wedevelopabranch-credit learning framework for joint C-UAVmotionandbackhaul-
+powercontrol,in which thetwo decision branches a retrained with obj ec-ti v es re fl ec t ing their distinct temporal effects on end-to-
+endservice.Specifically,the motionbranch e m p lo ys a recursive soft value objective to capture long-termserviceoutcomes,whereas the powerbranch uses a same-
+slotservice utility to address immediate backhaul allocation.Asharedrelay-structured encoder with maskedpooling supports a variable number of interchangeable M-
+UAVs.Section II review s there le va n t l iter at u re;SectionIIIspec-if i es the model.SectionIV present s the unified HQC-SACframework,includingHA-QCSschedulingandbranch-creditC-
+UAVcontrol.SectionV reports simulation results,Sec-tion VI disc u s s es insights and limitations,and SectionV II con c l u de s the paper.II.RELATEDWORKUAV-
+assisted communication has progress ed from mobility-aware link design to cooperative aerial access,wirelessback-
+haul,and adaptive resource control.In line with the three challenges in Section I,wereviewfourlinesofwork:jointtrajectory and resourceoptimization,backhaul-constrainedandtwo-
+tierUAVnetworks,minimum-QoSscheduling and servicecontinuity,andlearning-basedUAVcontrol.TableIsumma-r i z es the features of representative studies.Jointtrajectory and resourceoptimization:UAV
+mobility couples propagation conditions with resourceallocation.Zengetal.jointly optimized relay trajectory and transmit power subject to information-
+causalityconstraints[2],whileWuetal.consideredmulti-UAVuserassociation,scheduling,trajecto-ries,andpowerformax-mindownlinkthroughput[3].Delay-
+aware UAV OFDMA design s further examined the effect of radio allocation on time-sensitivecommunication[4].Morerecently,Yanetal.jointly optimized scheduling,resourceallocation,and trajectories form
+o b i le group users subject to QoS requirements[5].These studies establish the coupling between UAVmobility and radio resources,but they typically as sum ea fixed user population and optimize aggregate or max-
+minthroughput;a favorable average throughput need not imply that every active GU meets its minimum delivered rate ineachslot.Backhaul-constrainedandtwo-
+tierUAVnetworks:The gap between link quality and delivered service wide ns when aerial access is supplied through a capacity-limitedwirelessback-haul.Huetal.studiedbackhaul-
+constrained UAV relaying in an uplink set t ing[6],and KimandChoi optimized a multi-UAVaccessnetworkwithTHz-supportedbackhaul[7].Lyuetal.incorporateduser-andtime-specific end-to-
+end QoS into aerial trajectory and radio-resourceoptimization[8],andreliability-oriented UAV MEC work has coupled user data scheduling with motion and resources under un ce r tai n\n IEEE TRANSACTIONS ON WIRELESS COMMUNICATIONS3links[9].Zhaoetal.proposedatwo-tierarchitecture in which a central UAV provides NOMA backhaul to marginal UAVs that serve GUs,withclustering-
+basedassociation[1];weadoptthisarchitecture.Theseworksshowthatend-to-
+endservice depends on both hops,but they typically consider a given user set and do not model how session arrivals and departures shift the binding hop over time.Minimum-
+QoSscheduling and servicecontinuity:Whendemandexceedscapacity,de c id ing which users can meet their minimumrates becomes es s en ti al.NguyenandLe studied user admission in multi-
+UAVnetworks[10],andHammamietal.examined string en t QoS constraints in aerial resource alloc a-tionandpositioning[11].Wangetal.maximize d the number of served users under coupled access-
+backhaul constraints and burstyrequestsin a non-UAVnetwork[12];Souzaetal.investigatedminimum-rate-constrained user scheduling inc row de dX L-
+MIMOsystems[13];andShenetal.mini m i z edu n finished requests through multi-UAVassociation,trajectory,andTDMAdesign[14].Yuanetal.usedmulti-agent learning to increase the number of QoS-
+sat is fi ed GUs[15],whilepriority-awareratefairness[16]andservice-rate stability under link failure s[17]havealsobeenstudied.Theseworksmaxi-
+m i z e how many users a reserved ineachslot but do not track whether the same users are repeatedly left out.Forongoingsessions,proportional-fair(PF)scheduling[18],[19]andM-
+LWDF[20]weight users by past throughput or queue delay,andlearning-basedmulti-user scheduling considers delay con-
+straints[21].Servicehistory has enter ed UAV design mainly through rate continuity under time-
+varyingchannels[22]and consecutive coverage outage[23].However,none of these priority measures combines thetwo-hopresourcecost of completing a minimum-raterequestwiththeuser'sconsecutiveunder-
+service,and geometric coverage continuity does not guarantee minimum-ratesatisfaction when users c omp et e for access and backhaul capacity.Learning-
+basedUAVcontrol:Deepreinforcementlearning(DRL)adapts UAVmobility and radio resources without so l v-ing a nonconvex pr o g r a min every slot.Chengetal.appliedhybrid-actionmulti-
+agentlearningtobackhaul-constrainedas-so ci a tion and resourceallocation[24];Luoetal.investigated cooperativemulti-
+UAVrelaycontrol[25];Yinetal.learnedtrajectory,association,andradiocontrolinmulti-fixed-wingUAVnetworks[26];Wangetal.combinedimprovedK-meanswithPPOforenergy-eff i ci en t multi-
+UAV vehicular communications[27];andA lam and Mo h addressed coupled trajectory,frequencyassignment,andmulti-hoproutingwithmulti-agentDRL[28].Forthetwo-
+tierarchitecture,Zhaoetal.trained separate velocity and poweractor swith SAC for fair energy-eff i ci en t communication[1].Qinetal.exp lo it ed the symmetry of UAV int e g rate d s en s ing and communication sys t
+e ms through SAC with data a u g ment a tion[29].These controllers typically update all action components with the same reward-
+basedrecursivetarget,regardless of thetime scale over which each action affects service,and they handle relay symmetry,ifatall,through data a u g ment a tion or index-
+ordered inputs rather than a network structure that is invariant to relay order and number.Dist inc tions from existing studies:Compare d with the above TABLE I COMPARISON WITH REPRESENTATIVE STUDIES\n Study A/BDyn.Min-rateContin.DRL\n Zengetal.[2]X----Wuetal.[3]-----Huetal.[6]X----KimandChoi[7]X----Wangetal.[12]y X x X--NguyenandLe[10]--X--Chengetal.[24]X---XZhaoetal.[1]X---XYuanetal.[15]--X-XMeietal.[23]---x X\n This work X X X X X\nA/B:coupledaccessandbackhaul;Dyn.:within-episode session arrivals and de-partures;Min-rate:per-userminimumdeliveredrate;Contin.:consecutiveunder-
+servicehistory;DRL:deepreinforcementlearning.X:addressed;x:partially(burstyrequestsin[12],geometriccoverageoutagein[23]);-:not addressed inthe primary formulation.yNon-
+UAVnetwork.works,this paper differs in three respects,corresponding to the three challenges in Section I.First,wemodelatwo-
+tier network whose user population varies within an episode and formulate minimum-QoS completion subject to an explicit constraint on consecutiveunder-service,ratherthanaggre-
+gate throughput or energy efficiency over a fixed population.Second,HA-QCSranksusersbythetwo-hopresourcecost of completing their minimumrates and by their consecutiveunder-
+service,so that a single guard threshold directly controls the tail of under-service.Third,theC-UAVcontroller assigns branch-specific credit,a recursive value for motion anda same-
+slotutility for backhaul power,and encodes the relays as a set rather than an index-orderedvector.III.SYSTEM MODEL AND PROBLEM FORMULATION As illustrated in Fig.1,weconsideradownlinktwo-
+tier UAVnetwork following theC-UAV/M-UAVarchitectureofZhaoetal.[1].OnecentralUAV(C-UAV)provides wirelessbackhaul to a set of marginal UAVs(M-
+UAVs,alsocalledrelays),whichservegroundusers(GUs)onthedownlink.The main not a tions are summarized in Table II.Timeandentities:The mission of duration Ti s divided into H slotsof length\001t=T=H,in de
+xed by n=0;:::;H-1.LetKn\022f1;:::;KmaxgbethesetofactiveM-UAVs,withK=jKnj.TheC-UAVisatqn=[xCn;yCn;zCn]>,andM-UAVkisatuk;n=[xk;n;yk;n;hk]>with a fixed altitude hk.DynamicGUsessions:Let Un b
+e the set of active GU sessions in slotn.Sessionsarrive,move,anddepartduringthemission.Sessioni has ground position w i;n=[xi;n;yi;n;0]>andaminimum-
+raterequirementRmini>0(bit/s),drawn from a finite set of QoS classes on arrival and fixed for thesession.Theaggregateminimum-
+rateloadLn=Pi2U nRmini therefore varies with the number and classes of active GUs.EachGUisservedbyoneM-UAV:xi;k;n2f0;1g in di cat es that GUi is associated with M-
+UAVk,andUk;n=fi2Un:xi;k;n=1gisthesetofGUsservedbyM-UAVk.Per-slotoperation:Ineachslot,(1)the GUs are associated with theM-UAVs,which fl y toward their clusters;(2)theC-
+UAV chooses its motion and its backhaul power foreach M-\n t r a j e c t o r y   q n\n N O M A   b a c k h a u l\n p o w e r   p B k , n     w i d t h\n s e s s i o n\n a r r i v a l\n s e s s i o n\n d e p a r t u r e\n 5 0 0 × 5 0 0   m 2\n 1 2 5  2 5 0   m\n 8 0   m\n M 1\n M 2\n M 3\n M 4\n C - U A V\n d a m a g e d\n B S\n R m i n i = 0 . 7   M b i t / s\n R m i n i = 2 . 0   M b i t / s\n R m i n i = 2 . 5   M b i t / s\n u n d e r - s e r v e d   G U\n a c c e s s   l i n k\n N O M A   b a c k h a u l\n IEEE TRANSACTIONS ON WIRELESS COMMUNICATIONS5The num e r at or is the received signal power of relayk;the denom in at or c omp rises the r m al noise N0BBanduncancelledstronger-
+relay streams received through gBk;n.TheresultingRBk;n(bit/s)isthetotalincomingdata-rate budget for the GUs served by relayk.TheC-
+UAV allocates nonnegative powers subject toP k2KnpBk;n\024PmaxB.End-to-enddeliveredservice:Each associated GU must o b tai n data over both hops:first from theC-UAVtoitsM-UAV,andthenfromthatM-
+UAVtotheGU.LetDi;n(bit/s)be the rate actually delivered to GUi.Because this work c once rn s only minimum-ratesatisfaction,the delivered rate is capped at Rmini;itisalsolimitedbytheslot-averaged access
+rate,and all GUs associated with the same relay share that relay'sbackhaulrate.Thus0\024Di;n\024minfRmini;\034i;nCAi;ng;Xi2Uk;nDi;n\024RBk;n:(7)The first in e quality bounds each GU'srate,while the s
+e cond con s trains the aggregate rate forward ed by relayk.GUi meets its minimum rate only if Di;n=Rmini,which requires sufficient resources on both hops.B.Minimum-QoSCompletionandService-
+Continuity Model Motivated by minimum-rate-constrained user admission and scheduling[10],[12],[13],weevaluateslot-levelQoSsatis-factionusingtheend-to-
+enddeliveredrate.Here,completion denote s meeting theminimum rate within a slot,nottermina-
+tionoftheGUsession.Letzi;ni ndi cat e whether GUi attains Di;n\025Rminiinslotn.The slot completion ratio is zi;n=1fDi;n\025Rminig;Cn=1\n jUnj Xi2Unzi;n:(8)Thus,Cni s the fraction of active GUs that meet their minimumrates in slotn(defined for jUnj>0),and its time average is the QoS satisfaction ratio(QSR).However,Cn does not r ev e al whether the
+same GUs fail repeatedly,sowealsotrackeachsession'shistory.Foreachsession,letTibeitsactive-slot set and define thesession-
+levelQoSavailability(SQA)Si=jTij-1Pt2Tizi;t.The scheduler uses its running valueS i;n,computed over the active slots before slotn.Motivatedbyoutage-
+history tracking in persistent UAV coverage[23],we also main tai na consecutive minimum-QoSunder-servicedurationOi;nbeforetheslot-ndecision.Unlike geometric coverage outage,theeventhereisDi;n<R m
+ini;foracontinuingsession,thehistoryobeysOi;n+1=(0;zi;n=1;Oi;n+\001t;zi;n=0:(9)AnewsessionstartswithOi;n=0initsarrivalslot.Liketheageofinformation[33],Oi;n reset sup o na successful slot
+and otherwise grows linearly;iti s the duration counterpart of the consecutive-failure count used to define the survival time of5Gservices[34].Thesession-levellongestunder-
+servicerunis\026Oi=maxn2TiOi;n+1;(10)i.e.,the longest interval during which sessioni continuous l y fails its minimum rate.Its distribution across sessions qu an-ti fi es servicecontinuity:the95th per c
+en ti le of\026OiisreportedasP95outage,andthe5thpercentileofSiasP5-
+SQA.C.Problem Formulation Ineachslot n,the network decides the associationxn=fxi;k;ng,theaccessshares\034n=f\034i;ng,thedeliveredratesDn=fDi;ng,thebackhaulpowerspn=fpBk;ng,andtheC-
+UAVpositionqn;we col le c t them over the mission in Y=fxn;\034n;Dn;pn;qngH-1n=0.These decisions de term in e thetwo-
+hopcapacities:CAi;n depends on the association andthe relay positions,andRBk;non the backhaul powers andtheC-
+UAVposition.Since GU arrivals and channel states are not known in adv an ce,each decision may depend only on information available up to its slot.UAVs are subject to bounded motion.WithvCn;_vCndenotingC-
+UAV velocity and acceleration,andvk;n;_vk;nthoseofrelayk,theirlimitsarekvCnk2\024vmaxC;k_vCnk2\024_vmaxC;kvk;nk2\024vmaxM;k_vk;nk2\024_vmaxM:(11)TheC-UAV must also remain inthe admissible r
+e g i on B=fq:jxj;jyj\024Xmax;zminC\024z\024zmaxCgwithXmax=250m.Theservicegoalhastwoparts:as many active sessions as possible should meet their minimumrates ineachslot,and no session should remain be
+low its minimum rate for too long.LetI denote the set of sessions served during the mission.We therefore maximize themean completion ratio subject to a session-levelcontinuityconstraint:(P1)maxYEh1\n H H-1Xn=0Cni(12a)s.t.1\nj I j Xi2IPrf\026Oi>Toutg\024";(12b)Pk2Knxi;k;n=1;xi;k;n2f0;1g;(12c)Pi2Uk;n\034i;n\0241;\034i;n\0250;(12d)0\024Di;n\024minfRmini;\034i;nCAi;ng;(12e)Pi2Uk;nDi;n\024RBk;n;(12f)Pk2KnpBk;
+n\024PmaxB;pBk;n\0250;(12g)qn2B;(11);(12h)where(12c)-(12h)holdforallactiveGUsi2Un,relaysk2Kn,andslotsn.Constraint(12b)limits the fraction of sessions whose longest under-
+servicerun\026OiexceedsthetoleranceTout;with"=0:05itrequirestheP95outagetobeatmostTout.Constraint(12c)assignseachactiveGUtooneM-UAV;(12d)-(12f)arethetwo-hopdeliverylimitsof(5)and(7
+),couplingeachGU's access share with the backhaul budget of its relay;(12g)istheNOMApowerbudget;and(12h)boundstheUAVmotion.The objective and thecontinuityconstraint co nfl i c t under high load:comple
+t ing the least expensive sessions maximizes Cn inthe current slot,but repeating that choice can keep resource-expensive\n IEEE TRANSACTIONS ON WIRELESS COMMUNICATIONS6sessions below their minimumrates for long periods and thus vi o late(12b).Tolerance and guard threshold:ThetoleranceToutisspeci-
+fi ed by the application as the longest interruption of minimum-rate service that it can s u r v iv e,a na log o u s to the survival time in5Gservicerequirements[34];seconds-
+leveltolerancesarise,forexample,in stream in gservices whose p layout buffers abs or b short interruption s[35].Constraint(12b)thus has the same form as the peak-age violation guarantees in status-updates
+ch edu l ing[36].We consider services withTout=15sand"=0:05.Because(12b)couples decisions across entire sessions,it cannot be impose d slot by slot.However,\026Oi>ToutcanoccuronlyifOi;n first passes e
+v e r y smaller level.Followingthedistance-
+basedpriority for streams with(m;k)-fi r m deadline s[37],which raises the priority of a stream as it approaches a failure state,we call a session overdue once its remaining s l a ck Tout-Oi;n falls to a margin x,i.e
+.,onceOi;n\025TguardwithTguard=Tout-
+x.If an overdue session re gains its minimum rate within this margin,then\026Oi\024Tout.A larger x leaves more time for therescue but trigger s rescues more of ten,whichmayreducecompletion.We use x=5s,i.e.,t
+en rescue o ppo rt unit i es before a violation,whichgivesTguard=10s.SectionIV-B uses this threshold inthe scheduler.Since(12b)with"=0:05holdsifandonlyifthe95thpercentileof\026OidoesnotexceedTout
+,SectionV reports this percentile(P95outage)andchecksitagainstTout.(P1)isamixed-integer,nonconvex stochastic control prob-
+lem:the binary association andthe completion indicator inC nare discrete,theratesin(12e)and(12f)dependnoncon-v ex l y on the UAVposition sand powers,and(12b)couples decisions across entire sessions.We
+therefore do not see k its global optim u mand instead assign the decision variables of(P1)tothreecomponents:the associationxn is set by rate-
+weighted clustering andmatching(SectionIV-A);theaccessshares\034n and delivered ratesD na reset by the HA-
+QCSscheduler,which handle s thecontinuityconstraint through the guard threshold(SectionIV-B);andtheC-UAVpositionqn and backhaul powerspn a reset by a learned controller(SectionsIV-
+CandIV-D).IV.PROPOSEDHQC-SACFRAMEWORKA.Overall Architecture and AssociationPreprocessing As illustrated in Fig.2,theproposedhistory-awareQoS-completionsoftactor-critic(HQC-
+SAC)frameworkimple-ment s the decomposition of Section III-Casaclosedloop.OnlytheC-UAVcontrollerislearned;associationandHA-
+QCS are deterministic rules executed inside each environment transition.This sub section describes the association,andSec-tionsIV-BtoIV-DdevelopHA-
+QCSandthecontroller.Associationpreprocessing:Wefollowtheclustering-and-matching structure of Zhaoetal.[1].Active GUs are assigned to their nearest planar cluster centers;unliketheunweightedK-
+meansupdate[38],theGUminimum-raterequirements weight the center locations.Forclusterj,denote the assigned GU indices by Cj;nandtheplanarcenterbycj;n.Withwxyi;n=[xi;n;yi;n]>andweight!i=Rmini,
+each nonempty center is updated as cj;n=Pi2Cj;n!iwxyi;n\n Pi2Cj;n!i:(13)Thus,high-rate GUs p u l l cluster centers toward the mse l v es,while members hi p remains distance-
+based.The centers are iter a ti vel y updated,with empty clusters re initialized when needed.Hungarianmatching[39]thenassignstheM-
+UAVs to cluster centers by mini m i z ing their aggregate planar travel distance,which determines the association xi;k;nandM-UAVmovementtargets.These are established before per-relayminimum-
+QoSscheduling.Closed-loopcoupling:AsshowninFig.2,thecontrollersetsthetwo-hopcapacities,HA-QCS allocates service within them,andthe delivered rates update the QoS histories o b-
+servedinthenextslot;thetwo components are therefore coupled through delivered service rather than through a shared gradient.B.History-AwareQoS-CompletionScheduling(HA-QCS)HA-
+QCS runs independently at each relayk after the ac cessratesCAi;nandthebackhaulrateRBk;noftheslotareknown.A GUi s completed if it receives its full minimum rate,Di;n=Rmini.HA-QCS first decides which GUs t
+o complete andthe n distributes the leftover resources.It consists of a feasibilityscreening step and three stages,which follow the order of Algorithm1andFig.2(d).Feasibilityscreening:By(5)and(7),c omp
+let ing GUi requires an access share ofat least areqi;n=Rmini\nCAi;n(14)anda backhaul rate ofat least Rmini.A GU can be completed only ifareqi;n\0241,i.e.,CAi;n\025Rmini;these GUs formtheeligiblesetFk;n=fi2Uk;n:CAi;n\025Rminig.IfFk;nisempty,the relay serves n
+o GU in this slot.Because the GUs share the relay'sresources,asubsetJ\022Fk;n can be completed together only if Xi2Jareqi;n\0241;Xi2JRmini\024RBk;n;(15)i.e.,if the total access share andthe total back ha u
+l rate f it within the relay'sbudgets.Fi ndi ng the largest such subset is atwo-dimensional0-1knapsack problem with unit pr of its,whichisNP-hardingeneral,soHA-
+QCSselectstheGUsgreedily.Torankthem,we define the completion cost`i;n=Rmini\nCAi;n+Rmini\n RBk;n;(16)the sum of the fractions of the access and backhaul budgets that GUi consumes.Because every completion counts equally inC n,completinglow-cost GUs first is the standard density-
+greedyruleforthisknapsack[40].Stage1(guardedrescue):Cost-orderedselection alone would repeatedly skip the GUs with poor channels or high\n IEEE TRANSACTIONS ON WIRELESS COMMUNICATIONS7\nFig.2.Closed-loopstructureofHQC-SACinslotn:(a)associationpreprocessing,(b)learnedC-UAVmotionandbackhaul-powercontrol,(c)two-hopcapacityevaluation,(d)HA-
+QCSschedulingateachrelay,and(e)servicefeedback that updates the QoS histories used in slotn+1.minimumrates,sotheirunder-servicerunswouldgrowwith-outboundandviolate(12b).Beforethecost-
+orderedstage,HA-QCS therefore form s the set of eligible overdue GUs,whoseconsecutiveunder-service before slotn has reach ed the guard threshold of Section III-
+C:Ok;n=\010i2Fk;njOi;n\025Tguard\011:(17)IfOk;nisnonempty,the relay pick s the overdue GU with the longest Oi;n(ties b r ok e nby lower QoS availability Si;n,thenlowercost`i;n)and completes it if the b u d g
+et s allow.Inthesenseofdistance-
+basedpriority[37],this is the eligible GU closest to vi o latin g(12b).At most one GU per relay is rescued perslot,which limits the completions given up for continuity.Because therescue still requires two-
+hopfeasibility,it does not guarantee a bounded outage;SectionV evaluates the resulting tail.Stage2(cost-orderedcompletion):The remaining eligible GUs are considered in ascending order of`i;n.Each GUi s
+completed if its required access share and backhaul rate f it within the remaining budgets,which are then reduced according l y.Stage3(residualfilling):The completed allocation s are kept,andthe leftover acc
+es s share and backhaul rate are given to the uncompleted GUs to reduce their deficit s[Rmini-
+Di;n]+.They are divided by progressive filling,first the access share andthe n the backhaul rate,inproportiontoaweight#i;n\0251thatgrowswiththeGU'sconsecutiveunder-
+serviceOi;n and its availability deficit1-Si;n(parametersinTableIII),similarinspirittolargest-debt-
+firstscheduling,which serves c li en ts by their accumulated service deficit[41].C.MDPFormulationofC-UAVControl With associationandHA-QCS executed inside the environ-
+ment,theremainingdecisionsof(P1)aretheC-UAVmotionandbackhaulpower.Because the motion affects service over many subsequent slots,wemodelC-
+UAVcontrol as a Markov decision process(MDP)hS;A;P;R;\015i,where S andA are the state and actionspace s,Pisthestate-transitionprobability,R is the reward function that yields the per-
+slotrewardrn=R(sn;an),and\0152[0;1)isthediscountfactor.The e le ment s are defined as follows.1)Statespace:TheC-
+UAV has access to the positions of the UAVs,theassociationresults,andthe service statistics reported by theM-UAVs,butnottofutureGUarrivals.To re present a varying set of relays with a fixed-sizeinput,the
+state consists of a global vector,one token foreach of the Kmax relay indices,andanactivitymask:sn=\010sGn;fok;ngKmaxk=1;mn\011;(18)wheremn2f0;1gKmaxmarkstheactiverelays.Let\040i;n denote th elif
+e time service ratio of GUi,i.e.,its cumulative delivered rate divided by its cumulative minimum rate.UnlikeSi;n,which counts only completed slots,\040i;n also re fl ec ts the partial service from residual fi l
+l ing.TheglobalvectorsGn=fi qn;vCn;jUnj;Ln;\026\040n;\026\025An;\025A;maxn;\024nfl(19)containstheC-UAVpositionandvelocity,the number of active GUsand their minimum-
+rateload,themeanserviceratio,themean and peak accessload ratios over the relays,andacontextvector\024n with the number of active relays,theareascale,and\n(a)Associationpreprocessing\n Active GU sessions Un positions w i;n,min.ratesRmini\n Rate-weighted clustering centers cj;n,weightswi(13)\n Hungarianmatching relay!cluster,min.totaltravel\n xi;k;n,Uk;n,M-UAVtargets\n(b)Branch-creditC-UAVcontrol(learned)\n Observationsn14-dimglobalfeatures+Kmaxrelaytokens\n Shared relay encoder+maskedpooling\n Motionactor pM stochastic\n Poweractor pP deterministic\n ProjectionP flight limits(11),(22);\345kpBk;n\024PmaxB\naMn\naPn\n(c)Two-hopcapacityevaluation\n UAV geometry update qn+1,uk;n+1,gaing(d;q)(1)-(3)\n Access link(orthogonal)CAi;n=BAlog2(1+GAi;n)\n NOMA backhaul(SIC)RBk;n=BBlog2(1+GBk;n)\n Per-relaycapacitiesfCAi;ngi2Uk;n,RBk;n\n(e)Servicefeedback\n QoS histories(9)Si;n+1,Oi;n+1;rn(26),uPn(29)\n Delivered service(7),(8)Di;n,zi;n,completionCn\n(d)HA-QCSatrelayk(rule-based,guardthresholdTguard)\n Eligibility Fk;n=fi:CAi;n\025Rminig\n(1)GuardedrescueOi;n\025Tguard,\0241GU\n(2)Cost-orderedascending`i;n(16)\n(3)Residualfilling history-weightedPF\n Time shares ti;ns.t.\345iti;n\0241,\345iti;nCAi;n\024RBk;n(15)\n relay states\n Uk;n\n qn+1;pBk;n\nCAi;n;RBk;n\nDi;n\n Si;n;Oi;n\n slotn+1\n IEEE TRANSACTIONS ON WIRELESS COMMUNICATIONS8thebackhaulheadroom1-maxkflBk;n-1ofthepreviousslot.Thetokenofrelayk,ok;n=fi uxyk;n-qxyn;jUk;nj;Lk;n;\026\040k;n;\n\0402k;n;\0405%k;n;\025Ak;n;flBk;n-1;\037k;n;vxyk;n;ck;n-uxyk;nfl;(20)contains the horizontal position of the relay relative to theC-UAV,thenumberandminimum-rateloadLk;n=Pi2Uk;nRmini of its GU
+s,themean,secondmoment,and f if thpercentileof their service ratios,itsaccessloadratio\025Ak;n=Pi2Uk;nRmini=CAi;n(the airtime required by the minimumrates)anditsprevious-slotbackhaulloadratio
+flBk;n-1defined after(27),itsactivitystatus\037k;n,itshorizontalvelocity,and its displacement to the matched cluster center.BothsGnandok;nare14-
+dimensionalandnormalized,sosnhas14+14Kmax=98dimensionsforKmax=6.Theservice-
+ratio statistics in each token summarize the servicehistory of the relay'sGUs,which allows the controller to an ti ci pat e where under-serviceaccumulates.2)Actionspace:Ateachslot,theC-
+UAV selects a motion action anda backhaul-poweraction,an=[aMn;aPn]2R3+Kmax;aMn=[asn;a\022n;a\036n]:(21)The motion action speci fi es the commanded velocity in s p h e r-icalcoordinates,withspeedvn=asn
+vmaxC,polarangle\022Cn=\031a\022n,andazimuth\036Cn=\031a\036n,whereasn;a\022n2[0;1]anda\036n2[-
+1;1].The change from the current to the commanded velocity is clipped to satisfy the limits in(11),andthe resulting executed acceleration_vC;execnupdatestheC-
+UAVstateasvCn+1=vCn+\001t_vC;execn;qn+1=\005B\022qn+\001t\n2(vCn+vCn+1)\023;(22)where\005B projects the position onto the admissible regionB in(12h).ThepoweractionaPn2[-
+1;1]Kmax contains one score per relay index and is mapped to the NOMA powers by a masked softmax with a minimum share\017P:pBk;n=PmaxBh\017P+(1-jKnj\017P)eaPk;n\nP j2KneaPj;ni;k2Kn;(23)andpBk;n=0forinactiverelays.The mapping always sat is fi es the powerbudget(12g),andthe floor\017P=0:01keeps every active relay con n ec t ed.3)Statetransition:After the action i
+s executed,theM-UAVs move toward their matched cluster centers,thetwo-hopcapacities are evaluated by(4)and(6),HA-QCSdeterminesthedeliv eredrates,andthe QoS histories are updated by(9).GU sessions th
+en arrive,move,anddepart,andthe association is refreshed,whichyieldssn+1.Because session arrivals and channel conditions are random and unknown to theC-UAV,Pisunknown,andwesolvetheMDPwithmodel-
+free deepreinforcementlearning.4)Reward:TheC-UAVcontrolpolicy\031=(\031M;\031P)maximizes the expected discounted return(P2)max\031M;\031PE\031M;\031P"H-1Xn=0\015nrn#;(24)rsvcn=&Cn fi(1-
+\014)+\014J life nfl:(25)Here rn is the total reward and rsvcn is its service component,in which Cni s the completion ratio(8)of slotn and J life n is the Jain fairness index[42]oftheQoSavailabilitiesfSi;n+1g o
+f the active GUs,updated with the outcome of slotn.Thefairness term thus rewards completions that are s p read across sessions rather than c once n t rate d on the same GUs.Theparameters\014=0:20and&=\001t=\001t
+r ef(with\001tref=1s)set thefairness mixture andtime-scalenormalization;\015=0:995isthepolicydiscount.The full reward used by the motionbranch is rn=rsvcn+rbhn+r\015yn+rengn;(26)where the three p
+en alt y terms are non positive and penalize backhaul shortage,infeasible flight commands,andC-
+UAVpropulsionenergy,respectively.Likersvcn,the first two are scaled by&so that they ac t per unit physical time,whereas the energy term is already a per-slotquantity:rbhn=-&\026Bmin\010[maxkflBk;n-
+1]+;fl max\011;r\015yn=-&fi\026S\032n+cz1faltitudeviolationg+fa(en)fl;rengn=-
+\026CECn=E0;(27)where flBk;n=Pi2Uk;n\034i;nCAi;n=RBk;n is the ratio of the total access rate scheduled at relayk to it sbackhaulrate,so rbhn penalize s the relay at which the backhaul is the tight e st b o t t len e
+ck;\032n2[0;1]is the fraction of the slot in which theC-
+UAVposition is projected back into B;fa(en)is a bounded penalty that increases with the relative excess en=[k_vCn;cmdk=_vmaxC-1]+of the commanded acceleration;andECnistheC-
+UAVpropulsionenergy in slotn,computedwiththerotary-wingmodelof[1]andnormalizedbyE0=500J.Everypenaltyisbounded:the backhaul term is capped at fl max=5,and fa is limited to the range in Table III.The b
+o un d s prevent rare,extreme constraint violations from do m i-
+natingthecritictargets.The weights in Table III were chosen so that the penalties remain secondary to theservice term in normal operation;forexample,theC-UAV energy penalty is on the order of10-
+2perslot,whereasrsvcncanreach&=0:5.The penalties therefore shape the motion toward feasible and eff i ci en t flight without changing theservice objective.Problem(P2)isthecontrolsubproblemof(P1)with
+clustering andHA-QCS embedded inthe environment:the completion term Cn corresponds to theobjectiveof(P1),while continuity is handled by HA-QCS and further en c our age d by thefairness term J life n.D.Branch-
+CreditSACforC-UAVMotionandBackhaulPower Fig.3showshowHQC-SACsolvestheMDP.AstochasticMotionactor\031M outputs aMn anda deterministic Poweractor\031PoutputsaPn;theiractionschangethetwo-
+hopcapacities available to HA-QCS,whosedelivered-rate outcomes sup p l y the reward and next state stored in replay.Set-structuredrelayencoder:MotivatedbyDeepSets[43],each branch applies one shared en c
+o de r to every relay token in(20),maskstheinactiverelays,and pool s the encoded tokens before com bin ing them with sGn.Maskedpooling is invariant to the order of the relays anda c comm o d at es any\n IEEE TRANSACTIONS ON WIRELESS COMMUNICATIONS9\nFig.3.Branch-creditlearninginHQC-SAC.The Motionbranch learns a recursive soft value with twin targetcritics,whereas the Powerbranch regresses a same-slotservice utility without a target critic or next-
+statebootstrap.number of active relay sup toK max.Inaddition,the Poweractor outputs one score per relay token,so each power score stays aligned with its relay.Relatedsymmetry-
+aware SAC training a u g ment s the data with equivalent observations[29];the present design instead builds the symmetry into the net-work.Branch-
+specific credit assignment:ThetrainingsideofFig.3distinguishes two kind s of critic super vi si on.Mo-
+tion changes relay geometry across subsequent slots and is therefore evaluated using a recursive soft value target.Power directly re allocates the current backhaul budget and is evaluated using a same-
+slotutilitylabel.Both labels re fl ec t service outcomes with HA-QCS embedded inthe environment,butonlyMotionusesanext-statevaluetarget.The Powerbranch therefore needs n either a target critic no r Be l l m
+an bootstrapping;treating its delay ed effect on QoS histories as secondary to its immediate effect is consistent with the ablation in SectionV-D.Motionbranch:C-UAVmotion changes its relative pos i-
+tionstotheM-UAVs,affect ing subsequent backhaul capacity.We use a soft Bellman target derived from soft actor-critic(SAC)[44]for the stochastic motion policy\031M(aMjs).Foratransition(sn;aMn;rn;sn+
+1;xn)drawnfrommotionreplay,thesofttargetisyMn=rn+\015(1-xn)hminj=1;2QM\026\022j(sn+1;aMn+1)-\013Mlog\031M(aMn+1jsn+1)i:(28)HereaMn+1issampledfromthenext-
+statemotionpolicy;QM\026\022jarethetwotargetcritics,\015isthetemporaldiscount,and\013Mweightsthepolicy-entropyterm.The term in al indicator xn suppresses bootstrapping when an episode ends.Th
+u s the target adds an estimate of discounted future service to the current reward.Because this critic conditions on motion rather than the simultaneous poweraction,it learns motion value under the power-
+policy behavior represented inthe replay data.Powerbranch:TheC-
+UAV's current powersplit directly changes the backhaul rates in(6)and hence the feasible services of the current slot.ThePowercriticusesasame-slotservice-utility label to evaluate the proposed alloc a ti o
+n.ThelabelisuPn=rsvcn+rbhn:(29)The label contains only the terms that the powersplit can inf lue n ce within the slot,namelytheservicereward(25)andthebackhaul-shortagepenaltyin(27),and excludes the f
+light and energy penalties.The utility is measured under the geometry produced by the executed Motion command,soQP(sn;aPn)evaluates power under the current motion behavior.Instead of a bootstrapped target,
+each of thetwo power critics regresses the observed same-slotutility:yPn=uPn;LP=E242Xj=1-QP\036j(sn;aPn)-uPn\001235:(30)In(30),theexpectationisoverpower-
+replaysamples,andQP\036j(sn;aPn)pre dict s the immediate utility associated with the\n Environment(slotn)\n Action projectionP(11),(22);powermap(23)\n Clustering+matchingxi;k;n,M-UAVtargets\n Two-hopcapacitiesCAi;n(4),RBk;n(6)\nHA-QCS(Alg.1)deliveredratesDi;n\n Feedback(9),rn(26),uPn(29),sn+1\n Execution\na M\030pM(\001js)\n Shared relay encoder mask&pool\na P=pP(s)\n sn\naMn\naPn\n Motion replay DM\n Power replay DP\n(sn;aMn;rn;sn+1;dn)\n(sn;aPn;uPn)\n Motionbranch:recursivesoftcredit\nQMq1\nQMq2\n\257QM\257q1\n\257QM\257q2\n L pM,aM\n LQ M\n Soft Bellman target(28)rn+g(1-dn)fi minj\257QMj(s0;a0)-aMlogpM(a0js0)fl\ny Mn\n soft,z\n Powerbranch:immediate(same-slot)credit\n L pP(31)\n LQ P(30)\nSame-slottarget(29)uPn=rsvcn+rbhn\nQPf1\nQPf2\n no target critic,nonext-statebootstrap\n yPn\n\321pM\n\321pP\n data/interaction\n replay sampling\n soft targetupdate\n actor gradient\n IEEE TRANSACTIONS ON WIRELESS COMMUNICATIONS10\nAlgorithm1HA-QCS Scheduling at Relayk in Slotn\nInput:AssociatedGUsUk;nwithminimumratesRmini,ac-cessratesCAi;n,andhistories(Si;n;Oi;n);backhaulrateRBk;n;guardthresholdTguard Output:Accessshares\034i;nanddeliveredratesDi;nforalli2
+Uk;nComplete(i):set\034i;n\040areqi;n,Di;n\040Rmini,^\034\040^\034-areqi;n,^R\040^R-
+Rmini1:Set\034i;n=Di;n=0;remainingaccessshare^\034\0401;remainingbackhaul^R\040RBk;n2:FormtheeligiblesetFk;n=fi2Uk;n:CAi;n\025Rminig3:ifFk;n=?then4:returnzeroallocation5:endif6:Com
+p u t e the required share areqi;nby(14)andthecomple-tioncost`i;nby(16)foralli2Fk;nStage1-
+guardedrescue7:FormtheoverduesetOk;nby(17)8:ifOk;n6=?then9:Selectr2Ok;nwiththelongestOr;n(ties:lowerSr;n,thenlower`r;n)10:ifareqr;n\024^\034andRminr\024^RthenComplete(r)11:endif St a
+g e2-cost-orderedcompletion12:foreachremainingi2Fk;ninascendingorderof`i;ndo13:ifareqi;n\024^\034andRmini\024^RthenComplete(i)14:endforStage3-
+residualfilling15:ForeachuncompletedGU,compute the deficit[Rmini-Di;n]+andthehistoryweight#i;n16:Divide the remainingaccessshare^\034among them by capped progressive filling with weights#i;n1
+7:Divide the remainingbackhaul^R inthe same w a y and add the result to Di;n18:returnf\034i;n;Di;ng\n relay power scores.The deterministic Poweractor is trained to maximize the conservative twin-criticestimate:L\031P=-
+Esn\030DP\024minj=1;2QP\036j(sn;\031P(sn))\025:(31)Its masked power scores are projected to the feasible power simplex for environment execution.Incontrast,the stochastic Motionactor minimizes the u
+s u al entropy-regularizedSACloss,L\031M=E[\013Mlog\031M(aMnjsn)-minjQMj(sn;aMn)].E.Algorithm Summary and Complexity Analysis HA-QCSprocedure:Algorithm1givestheper-relayHA-QCS routine used in
+all experiments.Algorithm1follows the screening step andthe three stages of SectionIV-
+B.TheroutineComplete(i)g r an ts GUi exactly the access share and backhaul rate it needs to reach Rmini and d edu c ts them from the remaining budgets.Capped progressive filling in Stage3divides a budget in pr op or t
+i onto the weights#i;n,capseachallocationattheGU's remaining deficit,and redistributes any unused capacity until the budget or all deficit s are exhausted.ForNk=jUk;nj,feasibilityscreening and history
+look up are linear,whilesortingcostsO(NklogNk).Progressive filling term in at e sin at most Nk rounds,soHA-QCSrunsinO(N2k)time per relay inthe worst case and O(NklogNk)when residualfilling saturates in ac
+on st an t number of rounds.Overallcomplexity:Perslot,weighted clustering with I iterations costsO(IjUnjK),HungarianmatchingO(K3),HA-
+QCSO(PkN2k),andthe cost of one forward pass of thetwo actors grows linearly with the number of relay tokens Kmax.Inourimplementation,thetwoactorstakeabout5msandHA-
+QCSabout2.5msperslotonaverage,farbelowthe0.5-sslotduration,soHQC-SAC is s ui table for online operation.Trainingprocedure:HQC-SAC learns motion and backhaul-
+power policies from network observations.Duringdeploy-ment,the learned policies g en e rate C-UAVactions,whileHA-QCS determines GU service under the resulting two-
+hopcapacities.Duringtraining,the scheduler is embedded in each environment transition;Algorithm1isexecutedateveryrelay.Given the associations and motion/poweractions,thesimulatorevaluatestwo-
+hopcapacities;HA-QCSdeterminesthedeliv-eredrates,which update the QoS histories and pr o d u ce the reward and next state.Motion replay uses the recursive target(28),and Power replay uses the immediate lab e
+l(29).Only the Motion critics require bootstrapped target networks.Algorithm2summarize s the trainingprocedure.Both branches learn from replay,withcriticsQM(s;aM)andQP(s;aP),but only the Motion b r an
+ch bootstrap s from next-statevalues.Because the relay encoder is shared across tokens,the network computation grows linearly withK max,andtheactiondimensionis3+Kmax.SectionV-
+D evaluates the be n ef it of branch-specific credit through ablations.V.SIMULATION RESULTS AND ANALYSIS This section first describes the simulation settings andthe n evaluates HQC-
+SACinfourparts:thecomparisonofC-UAVcontrollers(SectionV-B),the comparison of scheduling schemes(SectionV-C),theablationstudy(SectionV-
+D),andthe performance under dynamic load and resource var i a tions(SectionV-E).A.Simulation Settings Network configuration:WeconsideroneC-UAVandnomi-nallyfourM-
+UAVsovera500fi500m2serviceregion.Each200-sepisodehas400slotsof0.5s.TheC-UAVstartsat(250;0;150)m,flies between125and250m with speed and acceleration limited to25m/sand5m/s2,andtheM-
+UAVs fl y at80m.TheM-UAVsreuseacommon5-MHzaccessband,withTDMA-equivalentintra-relaytimesharingand1-WtransmitpowerperM-UAV.TheC-
+UAV serves the relays over a separate20-MHzNOMAbackhaulwithatotal5-Wtransmit-
+powerbudget.The propagation and interference parameters are listed in Table III.User population and traffic:Each arr iv ing session draws a minimum-rateclassRmini2f0:7;2:0;2:5gMbit/swithprobabilities
+0:45=0:35=0:20andkeepsitforitslifetime.The network load is therefore driven by the size of the active population.Dynamicepisodesstartfrom20GUsand\n IEEE TRANSACTIONS ON WIRELESS COMMUNICATIONS11\nAlgorithm2TrainingoftheHQC-SACController\nInput:Environmentwithclustering,matching,andHA-QCS;learningrates,discount\015,target-updaterate\020Output:TrainedMotionpolicy\031MandPowerpolicy\031P1:InitializetheMotionactor\031M
+,criticsQM\0221;QM\0222,targetcritics\026\022j\040\022j,andtemperature\013M2:InitializethePoweractor\031P,criticsQP\0361;QP\0362,andreplaybuffersDM;DP3:foreachepisodedo4:Reset G Uses
+si on sand UAV positions,andobserves05:foreachslotn=0;:::;H-
+1do6:SampleaMn\030\031M(\001jsn)andcomputeaPn=\031P(sn)withexplorationnoise7:Project aMn onto the flight limits(12h)andmapaPntothepowersby(23)8:Update GU sessions and associations by cluster-
+ing(13)andmatching9:ComputeCAi;nandRBk;nby(4)and(6)10:RunAlgorithm1ateachrelaytoobtainDi;n11:Updatethehistoriesby(9);computernby(26)anduPnby(29);observesn+112:Store(sn;aMn;rn;sn+1;
+xn)inDM13:Store(sn;aPn;uPn)inDP14:ifthereplaywarm-upiscompletethen15:Samplemini-
+batchesfromDMandDP16:Update the Motioncritic swith target(28);update\031Mand\013MbytheSAClosses17:UpdatethePowercriticsby(30)and\031Pby(31)18:Soft-
+update the Motion targetcritics:\026\022j\040\020\022j+(1-\020)\026\022j19:endif20:endfor21:endfor22:return\031M;\031P\n follow a four-stage arrival profile(S1-S4):aquietstart,asurgeofarrivals,aslowdown,andadeparturephase,so the population rises roughly five f old andthe n returns.The fixed-
+populationstudy instead holds N2f20;40;:::;120g activeusers throughout an episode.To avoid an over l y regular traffic pattern,the simulator additionally applies inf req u en t network-
+wide traffic bursts(rate0:04s-1,oneslot,1:8fi theminimum rate);the excess traffic is served only as best-
+effort residual and does not change any Rmini or the completion test(8).Baselines:All controllers operate with the same HA-
+QCSscheduler,observation,andactioninterface.TD3[45]andPPO[46]learnthejointmotion-poweraction with a single critic.Joint-
+SAC(PM)is a single SACagent over the joint action whose network size is parameter-matchedtoHQC-SAC,andJoint-SAC(large)hasabout2.5timesasmanyparameters.CDA-SACisourre-implementationofthedual-
+actorstructureof[1],with flat networks andthe same recursive reward target for both branches,parameter-matchedtoHQC-SAC.Rule-DCMisademand-channel-matched rule that flies theC-UAVtowardthedemand-
+weighted centroid of the relays and splits the backhaul power in proportion to each relay'sTABLE III SIMULATION ANDLEARNING PARAMETERS\n Parameter Value\n Serviceregion and episode horizon500fi500m2;200s Control slot and episode length0.5s;400slotsC-UAVinitiallocation(250;0;150)mC-UAValtitude/speed/acceleration125-250m;25m/s;5m/s2Nominal M-
+UAVnumber/heightK=4;80mMaximumnumberofM-UAVsKmax6Initial/maximumnumberofactiveGUs20/130MaximumGUspeed6m/s Carrier frequency for pathloss2G Hz Access bandwidth and power shared5MHz;1W/M-
+UAVBackhaulNOMAbandwidth/power20MHz;5WtotalNoisePSD/averageaccessinterference10-17W/Hz;\030=0:25LoSlogisticparameters(\021a;\021b)(12:08;0:11)ExcessLoS/NLoSloss1.6/23.0dBGUminimum-
+rateclasses0.7/2.0/2.5Mbit/sQoSclassprobabilities0.45/0.35/0.20Best-
+effort traffic bursts0.04s-1;1:8fi Rmini;1slot Session arrival rates by stage0.03/1.35/0.10/0s-1Sessionlifetime\02545s,\024120sToleranceTout/margin x/violationlevel"15s/5s/0.05HA-
+QCSguardTguard/rescuequota10s/1perrelayResidualweight:gain/agescale/outagescale0.2/5s/10sLife-fairnessrewardweight\014=0:20Penaltyweights\026B/\026S/\026C0.12/0.08/0.06Acceleration
+penaltyfa/altitudepenaltycz0.05-0.20/0.035Replaycapacity/minibatch2fi105/256Actor/criticlearningrate3fi10-4Discount/targetupdate0.995/0.005Motionn-stephorizonn=1\n demand divided by its channel gain.The scheduling baselines are defined in SectionV-C.Evaluationmetrics:Thetwoquantitiesin(P1)arereporteddirectly.QSR,thetime-
+average completion ratio Cni n(8),istheobjectiveof(P1);P95outageisthe95thpercentileof the longest under-servicerun\026Oiin(10),i.e.,the smallest tolerance for which thecontinuityconstraint h old
+swith"=0:05;a scheme therefore sat is fi es(12b)withTout=15sifandonlyifitsP95outageisatmost15s.P5-SQA,the f if thpercentileof thesession-levelavailabilitySi,describestheworst-servedsessions,
+and energy is the simulated UAVpropulsionenergy.Runs that last until the end of the200-
+sepisodearecensored,soaP95of200sisreportedas\025200s.Evaluationprotocol:Thecontrollercomparison,ablation,andresourcesweepsshare50evaluationscenarios;thesched-
+u le r comparison uses ten scenarios at each population size,andtheload-response study uses tendynamicscenarios.Each learned controller is trained with three seeds(7,17,27);rule-
+basedDCMisdeterministic.Seed results are averaged within each scenario,and95%Student-t intervals are computed over scenarios,or over paired scenario differences for paired comparisons.All learned con t
+roll e r s use width-128networks,replaycapacity2fi105,batchsize256,learningrate3fi10-4,discount0.995,andtarget-updatefactor0.005,implemented in PyTorch on an RTX4090.\n IEEE TRANSACTIONS ON WIRELESS COMMUNICATIONS12TABLEIVC-UAVCONTROLLERRESULTS\n Method QSR(%)P5-SQA(%)P95(s)E(kJ)\n HQC-SAC82.108.6110.39203.19TD377.536.2711.85203.02PPO74.674.8711.19202.79CDA-SAC[1]72.555.4111.63202.70Rule-DCM74.854.5710.52200.89Joint-SAC(PM)67.314.3016.21203.09Joint-
+SAC(large)68.674.3518.02203.81\n B.PerformanceComparisonofC-UAVControllers Completion and continuity(Fig.4(a)):Weplaceeverycon-
+troller inthe plan e span n ed by the objective andthe constraint of(P1).Amongthebaselines,higher completion tends to come with longer tail outage s:TD3completes more sessions than PPO and Rule-
+DCM but leaves its worst sessions under-servedforlonger.HQC-SAC break s this pattern and is the only controller inthe upper-
+leftcorner,with both the highest QSR andthe shortest P95outage.All controllers except thetwo Joint-SAC variants satisfy thecontinuityconstraint withTout=15s,soHQC-
+SAC attains the highest completion among the feasible controllers.Because all controllers share HA-QCS,the difference a rises entire l y from thetwo-hopcapacitiesthattheC-
+UAV makes available to the scheduler.Pairedgainandworst-servedsessions(Fig.4(b),(c)):The paired comparison con fi r ms that the gain is system a ti c rather than driven by a few favorable scenarios:every int e
+r val lies well above zero.The margin is smallest against TD3(4.6percentagepoints)andlargestagainstthejoint-actionSACvariants(about14points),which learn motion and power through a single critic.This
+gap is the first in di ca tion that separating the credit of thetwo action branches,rather than adding network capacity,iswhatmatters;SectionV-
+Disolatesthiseffect.Fig.4(c)shows that the be n ef it extend s to the worst-servedsessions,whoseavailabilityisabout1.4timesthatunderTD3.Table IV shows that all learned controllers con sum e almost the sa
+m e propulsion energy,so these gains require no additional flight effort.C.Performance Comparison of Scheduling Schemes Fig.5isolates the scheduler by running six schedulers under the same frozen HQC-
+SACcontroller:HA-QCS,Completion-first(HA-QCSwithouttherescuestage),PF[18],M-LWDF-A[20],work-conservingequalsharing(Equal-WC),andstaticequalsharing(Equal-
+share).QoScompletionversusload(Fig.5(a)):HA-QCSandCompletion-first are n early in dist in gui sha b le up to N=60and separate only slightly atthehighestload s.The guardedrescue therefore costs few comple
+tions,because it ad m its at most one overdue session per relay and returns all remaining resources to cost-orderedselection.Thefairness-orientedPFandM-LWDF-
+Aschedulers,bycontrast,lose a large share of th each i ev abl e completions as the population grows.Servicecontinuity versus load(Fig.5(b)):The schedulers differ mainly in servicecontinuity.Completion-
+first starves resource-expensive sessions even at light load:itsP95outageTABLEVHIGH-LOADSCHEDULINGRESULTS(N=120);\025200:CENSOREDATTHE200-SHORIZON\n Scheduler QSR(%)P5-SQA(%)P95(s)\nHA-QCS45.384.1227.62Completion-first48.170.00\025200PF30.485.3879.29M-LWDF-A20.647.5356.10Equal-WC6.530.00\025200Equal-share4.520.00\025200\n already exceeds50swith20usersandreachesthe200-shorizonfromN=80onward,meaningthatatleast5%of its sessions never meet their minimumrates during the entire episode.HA-QCSkeepstheP95outagebetween
+10and28s across a six f old population increase,below that of every other scheduler at every load.Its at is fi es(12b)withTout=15suptoN=60;athigherloads,more sessions become overdue than one rescue per relay
+and slot can serve,andtheP95outageexceedsthetolerance,alt h o u g hit remains far below that of Completion-first.Completion-continuitytrade-
+offatN=120(Fig.5(c)):Atthehighestload,the baselines fall into two groups:Completion-first maximizes the objective but vi o late s any pr ac ti c al continuity tolerance,whereasPFandM-LWDF-
+A shorten the outage but complete at most about two-thirdsasmanysessions.HA-QCS is the only scheduler close to the upper-leftcorner,which is pre c is e l y the operating point that(P1)asksfor.M-LWDF-
+AretainsaslightlyhigherP5-SQA(TableV),but at le s s than half the completion ratio of HA-QCS.D.AblationStudyofHQC-SACWecompareHQC-
+SAC with six variants that each change one component:Recursive Power credit replaces the same-slot Power target with the recursive reward target used by Motion;Motioncreditn=5andn=20usen-
+stepinsteadofone-stepMotiontargets;Flat relay MLP replaces the shared relay encoder with a parameter-matched flat network;Fixed powersplit keeps learned motion but divides the backhaul power equally am on
+g the relays;andNoJainfairnesstermsets\014=0in(25).Fig.6groups the ablations by the design question the yan s we r;every bar to the right of zero favors the full design,and TableV I lists the absolute values.C
+r ed it assignment:Giving the Powerbranch the same recursive target as Motion costs about4.4pointsofQSRand2.7pointsofP5-
+SQA.Conversely,length en ing the Motion credit horizon de grad es performance progressive l y(n=5,thenn=20).Thetwo results point inthe same direction:each branch performs best when its target spans thetime o
+v e r which its action actually affects service,i.e.,oneslot for power andthe full discounted horizon for motion.Relay representation and powercontrol:R ep l ac ing the shared relay encoder with a flat MLP of e qu a
+l size costs as much as the w r on g power credit,show ing that the gain comes from treating the relays as an un ordered set rather than from the number of parameters.Freezingthebackhaul-powersplit\n IEEE TRANSACTIONS ON WIRELESS COMMUNICATIONS13\nFig.4.C-UAVcontrollers under the same HA-QCSscheduler(50scenarios,95%confidenceintervals).(a)Each controller inthe objective-
+constraintplaneof(P1);theupperleftisbetter.(b)PairedQSRgainofHQC-SACovereachbaseline.(c)Fifth-percentile session availability.\nFig.5.SchedulersunderacommonHQC-SACcontroller as the GU population grows(tenscenariosperN,shaded:95%confidenceintervals).(a)QSR,theobjectiveof(P1).(b)P95outage,thecontinuityconstraint;t
+h e g ray band marks values censoredatthe200-shorizon.(c)Objective-constraintplaneatN=120;right-point ing m a r k e r s are censored.\nFig.6.Controller ablations group ed by design question:paired differences between the full HQC-
+SACandeachvariant(50scenarios,95%confidenceintervals).produces the largest loss in both metrics,id en t if y ing adaptive backhaul power as the most valuable control authority of the TABLEV I HQC-
+SACCONTROLLER ABLATION RESULTS\n Variant QSR(%)P5-SQA(%)E(kJ)\n HQC-SAC(full)82.108.61203.19Recursive power77.685.92203.55Flat-relay77.486.05202.80Fixedpower73.284.51202.33NoJainmix81.757.34203.36Motionn=581.247.98203.48Motionn=2079.376.57203.01\n C-UAV;SectionV-E shows the same effect from the resource side.Fairnessrewardterm:Removing the Jain mixture from the reward ba rel y changes QSR but lowers P5-SQA,sothetermservestheworst-
+servedsessions without competing with completion.E.Performance Under Dynamic Load and Resource Var i a-tionsWithin-episodeloadresponse(Fig.7):DuringthearrivalsurgeinS2,theminimum-
+rateload rises more than four f old\n 1 0\n 1 2\n 1 4\n 1 6\n 1 8\n 2 0\n P 9 5   o u t a g e   ( s )    !   b e t t e r\n 6 5\n 7 0\n 7 5\n 8 0\n 8 5\n Q S R   ( % )     b e t t e r  !\n H Q C - S A C\n T D 3\n P P O\n R u l e - D C M\n C D A - S A C\n J o i n t - S A C   ( P M )\n J o i n t - S A C   ( l a r g e )\n ( a )   C o m p l e t i o n   v s .   c o n t i n u i t y\n 0\n 5\n 1 0\n 1 5\n Q S R   g a i n   o f   H Q C - S A C   ( p p )\n T D 3\n R u l e - D C M\n P P O\n C D A - S A C\n J o i n t - S A C   ( l a r g e )\n J o i n t - S A C   ( P M )\n ( b )   P a i r e d   c o m p l e t i o n   g a i n\n 4\n 6\n 8\n 1 0\n P 5 - S Q A   ( % )\n J o i n t - S A C   ( P M )\n J o i n t - S A C   ( l a r g e )\n R u l e - D C M\n P P O\n C D A - S A C\n T D 3\n H Q C - S A C\n ( c )   W o r s t - s e r v e d   s e s s i o n s\n 2 0\n 4 0\n 6 0\n 8 0\n 1 0 0\n 1 2 0\n A c t i v e   G U s ,   N\n 0\n 2 0\n 4 0\n 6 0\n 8 0\n 1 0 0\n Q S R   ( % )\n ( a )   O b j e c t i v e   o f   ( P 1 )\n 2 0\n 4 0\n 6 0\n 8 0\n 1 0 0\n 1 2 0\n A c t i v e   G U s ,   N\n 0\n 5 0\n 1 0 0\n 1 5 0\n 2 0 0\n P 9 5   o u t a g e   ( s )\n c e n s o r e d   ("e   2 0 0   s )\n ( b )   C o n t i n u i t y   c o n s t r a i n t   o f   ( P 1 )\n 0\n 5 0\n 1 0 0\n 1 5 0\n 2 0 0\n P 9 5   o u t a g e   ( s )    !   b e t t e r\n 0\n 1 0\n 2 0\n 3 0\n 4 0\n 5 0\n Q S R   ( % )     b e t t e r  !\n H A - Q C S\n C o m p l e t i o n -   r s t\n P F\n M - L W D F - A\n E q u a l - W C\n E q u a l - s h a r e\n ( c )   T r a d e - o f f   a t   N = 1 2 0\n H A - Q C S\n C o m p l e t i o n -   r s t\n P F\n M - L W D F - A\n E q u a l - W C\n E q u a l - s h a r e\n 0\n 5\n Q S R   ( p p )\n R e c u r s i v e   P o w e r   c r e d i t\n M o t i o n   c r e d i t   n = 5\n M o t i o n   c r e d i t   n = 2 0\n F l a t   r e l a y   M L P\n F i x e d   p o w e r   s p l i t\n N o   J a i n   f a i r n e s s   t e r m\n C r e d i t   a s s i g n m e n t\n R e p r e s e n t a t i o n\n C o n t r o l   a u t h o r i t y\n R e w a r d\n ( a )   C o m p l e t i o n\n 0\n 2\n 4\n P 5 - S Q A   ( p p )\n ( b )   T a i l   a v a i l a b i l i t y\n F u l l   H Q C - S A C   m i n u s   v a r i a n t ;   >   0   f a v o r s   t h e   f u l l   d e s i g n\n IEEE TRANSACTIONS ON WIRELESS COMMUNICATIONS14\nFig.7.Within-episode response to a growing ands h r in k ing user population.(a)Minimum-rateload of one evaluation episode with arrival stages S1-
+S4.(b)SlotQSRofthesameepisode(learned controllers averaged over three seeds).(c)Slot QSR versus the number of active GUs,pooled over tendynamicscenarios after the10-
+sdeploymenttransient(shaded:95%confidenceintervals).withinoneminute(Fig.7(a)).Allcontrollerslosecomple-tions as the population peaks and recover as sessions depart(Fig.7(b)),butHQC-
+SAC lose s the least during the surge and recover s first.Fig.7(c)g en e r al i z es this observation across ten scenarios:plotted against the instantaneous population,the HQC-
+SAC curve lies above both baselines over the entire range from20to100activeusers.TheadvantageofHQC-SAC is therefore not con f in ed to light l y loaded periods;it persists through the con g es tion that mo ti v at es
+the problem.Impactofuserpopulation(Fig.8(a)):Scaling the arrival rate increases the number of sessions per episode by more than half.Completion de c lines for all controllers,butthemarginofHQC-SAC over T
+D3staysbetween5and6percentage point sateveryloadlevel,anditsP95outageremainsaround10-
+11s,whereasthatofTD3staysabove12s;bothremainwithinTout=15sateveryloadlevel.The proposed controller thus scale swith the user population without t rad ing continuity for completion.Joint impact of re
+l a y count and backhaul budget(Fig.8(b)):The best fleet size depends on the backhaul budget.Withascarcebudget,adding relays beyond four lowers QSR,because the NOMA power must be divided among more streams;w i
+th10-
+20W,a fifth relay becomes w or th while,addingabout2.6pointsat20W.Each additional relay costs roughly29kJofpropulsionenergy,so relays should be dispatched only when the backhaul can feed them;at the no min
+al5Wbudget,four relays are the most eff i ci en t choice.Impactofbackhaulbudget(Fig.8(c)):TheadvantageofHQC-SACoverRule-
+DCM is largest at the smallest budget(about13pointsat2.5W)andn arrows as power becomes p len t if u l.TD3,incontrast,fallsbehindRule-DCMfrom10Wupward,whereasHQC-
+SAC remains the best controller at every budget.Adaptive powercontrol with branch-matched credit is therefore most valuable exactly inthe backhaul-
+limited regime that de ns e user population s create.VI.DISCUSSIONANDLIMITATIONSA.InsightsontheCompletion-ContinuityTrade-off The results show that mean completion andthe tail of consecutiveunder-
+service must be treated as separate targets.Cost-orderedcompletion maximizes the former but repeatedly skips the same expensive sessions,whereasasmall,guarded dev i a tion from the cost order removes most of
+the tail at l it t le cost in completion.Therescue,however,isnotanoutagedeadline:aGUwithCAi;n<Rmini cannot be rescued by re ordering,andrecoveringitrequiresC-UAVmotion,adifferentassociation,or m or
+e backhaul power,which is where the learned controller contributes.B.Limitations and Future Work Several limits qu al if y these fi ndi ng s.First,the access model uses orthogonal access-
+resource fraction sand mean inter-relayinterference;f in e-grainedtime-
+frequency scheduling and instantaneous f ad ing are beyond this model.Second,access and backhaul use independent log i c al resource budgets without an explicit cross-tierduplexorinter-
+tierinterferencemech-anism.Third,thesimulatedmetricisaper-slotminimum-ratethreshold;itisnotequivalenttoa3GPPtime-windowGFBRoranend-to-end p a ck et deadline guarantee.Fourth,HA-
+QCS selects users greedily with a fixed rescuequota of one GU per relay;underveryhighload,many sessions become overdue at once and this quota limit show far the guard threshold can shorten the tail;inthe fixed-
+populationstudy,thecontinuityconstraint withTout=15sisthereforeviolatedforN\02580,and an adaptive quota is a natural extension.HA-
+QCS also returns no allocation at a relay with no individual l y feasible GU,achoicethatabest-effortfallbackcouldrelax.Fifth,the fleet size is fixed within each experiment.Finally,the fi ndi ng s are based on
+stochastic simulation without field measurements,andthe confidenceintervals re fl ec t scenario rather than retraining var i ab i li ty.Natural extension s are to model radio-blockoccupancyandcross-
+tiercoexistenceexplicitly,to let servicehistory also guide user association andM-UAVmobility,andtoevaluatetime-
+window QoS contracts under real is ti c mobility and energy dynamics.VII.CONCLUSION This paper studied how to maximize minimum-QoScomple-tioninadynamic,high-loadtwo-tierUAVdownlinkwithout\n 0\n 5 0\n 1 0 0\n 1 5 0\n 2 0 0\n T i m e   ( s )\n 0\n 2 5\n 5 0\n 7 5\n 1 0 0\n 1 2 5\n 1 5 0\n M i n . - r a t e   l o a d   L n   ( M b i t / s )\n S 1\n S 2\n S 3\n S 4\n ( a )   O   e r e d   l o a d\n 0\n 5 0\n 1 0 0\n 1 5 0\n 2 0 0\n T i m e   ( s )\n 0\n 2 0\n 4 0\n 6 0\n 8 0\n 1 0 0\n S l o t   Q S R   ( % ) ,   5 - s   m e a n\n S 1\n S 2\n S 3\n S 4\n ( b )   C o m p l e t i o n   t h r o u g h   t h e   l o a d   c y c l e\n H Q C - S A C\n T D 3\n R u l e - D C M\n 2 0\n 4 0\n 6 0\n 8 0\n 1 0 0\n A c t i v e   G U s   i n   s l o t\n 4 0\n 5 0\n 6 0\n 7 0\n 8 0\n 9 0\n 1 0 0\n S l o t   Q S R   ( % )\n ( c )   R e s p o n s e   t o   u s e r   p o p u l a t i o n\n IEEE TRANSACTIONS ON WIRELESS COMMUNICATIONS15\nFig.8.Sensitivity to the user population and radio resources(95%confidenceintervals).(a)QSR as thesession arrival rate is scaled from0:75fi to1:5fi(tendynamicscenarios).(b)HQC-SAC QSR over relay co un
+t and backhaul budget(50scenarios);box es m a r k the best K foreach budget andthe bold ce l list h e nominal set t ing.(c)QSR versus the backhaul budget at K=4.leaving individual sessions under-
+servedforlongperiods.We formulate d the problem with an explicit tail constraint on consecutiveunder-service,handled this constraint through a guard threshold inthe HA-
+QCSscheduler,and coupled the scheduler with a relay-structuredbranch-creditcontrollerforC-UAVmotionandbackhaulpower.HQC-
+SAC ac hi ev ed the highest completion ratio andthe shortest tail outage of all evaluated controllers.Under a fixed120-userload,HA-
+QCStraded2.79percentagepoints of completion for a more than sevenfold reduction of the95th-percentile outage relativetocompletion-
+firstscheduling.Future work will make the rescuequota adaptive to the load,refine the spectrum and interference model,and co up le servicehistory with association andM-
+UAVmobility.REFERENCES[1]S.Zhao,S.Feng,C.Dong,X.Zhu,andQ.Wu,\223Clustering-assisted deepreinforcementlearning for jointtrajectory design and resourceallocation in two-tier-co operate d UAVs co
+mm un i ca tions,\224IEEE Transactions on Machine Learning in Communications and Networking,2026.[Online].Available:https://doi.org/10.1109/TMLCN.2025.3647806[2]Y.Zeng,R.Zhang,andT.J.Lim,\223T
+h r o u g hp u t maximization for UAV-enabled mobile relaying systems,\224IEEE Transactions on Communications,vol.64,no.12,pp.4983-
+4996,2016.[Online].Available:https://doi.org/10.1109/TCOMM.2016.2611512[3]Q.Wu,Y.Zeng,andR.Zhang,\223Jointtrajectory and communication design for multi-UAV enabledwirelessnetwork s,\224I E
+EE Transactions on Wireless Communications,vol.17,no.3,pp.2109-
+2121,2018.[Online].Available:https://doi.org/10.1109/TWC.2017.2789293[4]Q.WuandR.Zhang,\223Common throughput maximization in UAV-enabled OFDMA systems with delay consider a tion,\224IEEE T r an s
+actions on Communications,vol.66,no.12,pp.6614-
+6627,2018.[Online].Available:https://doi.org/10.1109/TCOMM.2018.2865922[5]X.Yan,X.Fang,C.Deng,andX.Wang,\223Joint optimization of resourceallocation and trajectory control for mobile group u
+s e r sin fixed-wingUAV-enabledwirelessnetwork,\224IEEE Transactions on Wireless Communications,vol.23,no.2,pp.1608-
+1621,2024.[Online].Available:https://doi.org/10.1109/TWC.2023.3290748[6]B.Hu,L.Chen,andS.Chen,\223Jointtrajectory-resourceoptimization for UAV-enabled uplink communication networks with w
+i rel es s backhaul,\224ComputerNetworks,vol.229,p.109779,2023.[Online].Available:https://doi.org/10.1016/j.comnet.2023.109779[7]K.KimandJ.P.Choi,\2233dnetworkdesignformulti-
+UAVRANwithTHz-empoweredbackhaul,\224IEEE Transactions on Wireless Communications,vol.23,no.11,pp.16437-
+16452,2024.[Online].Available:https://doi.org/10.1109/TWC.2024.3440923[8]H.Lyu,J.Jang,H.Lee,andH.J.Yang,\223Non-iter at iv e optimization of trajectory and radio resource for aerial network,\2
+24IEEE Transactions on Wireless Communications,vol.24,no.2,pp.1555-
+1567,2025.[Online].Available:https://doi.org/10.1109/TWC.2024.3510043[9]J.Zhou,M.Wang,D.Tian,K.Qu,G.Qu,X.Duan,andX.Shen,\223Reliability-optimalUAV-assisted mobile edge computing:Joint
+resourceallocation,data t r an s mission scheduling and motion control,\224IEEE Transactions on Mobile Computing,vol.24,no.5,pp.4217-
+4234,2025.[Online].Available:https://doi.org/10.1109/TMC.2024.3521934[10]M.T.NguyenandL.B.Le,\223Resourceallocation,trajectoryoptimization,andadmissioncontrolinUAV-
+basedwirelessnetworks,\224IEEENetworkingLetters,vol.3,no.3,pp.129-132,2021.[Online].\n 1 0 0\n 1 2 0\n 1 4 0\n G U   s e s s i o n s   p e r   e p i s o d e\n 6 0\n 6 5\n 7 0\n 7 5\n 8 0\n 8 5\n Q S R   ( % )\n ( a )   G r o w i n g   u s e r   p o p u l a t i o n\n H Q C - S A C\n T D 3\n R u l e - D C M\n 3\n 1 7 4   k J\n 4\n 2 0 3   k J\n 5\n 2 3 2   k J\n 6\n 2 6 1   k J\n R e l a y s   K   ( f l e e t   e n e r g y )\n 2 . 5\n 5\n 1 0\n 2 0\n B a c k h a u l   b u d g e t   P m a x B   ( W )\n 7 0 . 6\n 7 4 . 4\n 7 2 . 1\n 6 8 . 0\n 7 3 . 9\n 8 2 . 1\n 8 1 . 9\n 7 9 . 7\n 7 5 . 2\n 8 5 . 4\n 8 6 . 9\n 8 6 . 2\n 7 5 . 5\n 8 6 . 5\n 8 9 . 0\n 8 9 . 0\n ( b )   H Q C - S A C :   r e l a y s   v s .   b a c k h a u l   p o w e r\n 2 . 5\n 5\n 1 0\n 2 0\n B a c k h a u l   b u d g e t   P m a x B   ( W ) ,   K = 4\n 6 0\n 6 5\n 7 0\n 7 5\n 8 0\n 8 5\n 9 0\n Q S R   ( % )\n n o m i n a l\n ( c )   B a c k h a u l - p o w e r   s e n s i t i v i t y\n H Q C - S A C\n T D 3\n R u l e - D C M\n 6 0\n 6 5\n 7 0\n 7 5\n 8 0\n 8 5\n 9 0\n 9 5\n Q S R   ( % )\n IEEE TRANSACTIONS ON WIRELESS COMMUNICATIONS16schedulingunderburstyon-off traffic,\2242017.[Online].Available:https://arxiv.org/abs/1701.05792[20]A.Foronda,C.Ohta,andH.Tamaki,\223Sched u
+l ing algorithm to provide QoS over a shared wireless link,\224I E I CE Transactions on Communications,vol.E92-B,no.6,pp.2160-
+2167,2009.[Online].Available:https://doi.org/10.1587/transcom.E92.B.2160[21]P.Hu,Y.Chen,L.Pan,Z.Fang,F.Xiao,andL.Huang,\223Multi-userdelay-
+constrained scheduling with deep re current reinforcement learning,\224IEEE/AC M Transactions on Networking,vol.32,no.3,pp.

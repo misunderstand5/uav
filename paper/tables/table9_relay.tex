@@ -1,0 +1,25 @@
+% Table IX: Cross-relay load balance (sealed set, 300 episodes per method)
+% Jain index over per-relay means; 4 relays; follows the cross-UAV balance
+% study of the TSC reference paper (AL-MAPPO, Table V therein).
+% Requires: \usepackage{booktabs}
+\begin{table}[t]
+\centering
+\caption{Cross-relay load balance on the sealed set. Jain index computed over per-relay means (300 episodes per method) for user attachment, backhaul load ratio, NOMA backhaul power, and per-relay QSR.}
+\label{tab:relayjain}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Method & $J(\mathrm{users})$ & $J(\mathrm{bh\text{-}load})$ & $J(\mathrm{power})$ & $J(\mathrm{QSR})$ \\
+\midrule
+\textbf{Proposed} & 0.9992 & 0.9632 & \textbf{0.8475} & 0.9975 \\
+w/o 1-swap & 0.9992 & 0.9653 & 0.8809 & 0.9976 \\
+w/o age term & 0.9992 & 0.9813 & 0.9347 & 0.9990 \\
+TD3 & 0.9992 & 0.9941 & 0.9932 & 0.9997 \\
+PPO & 0.9992 & 0.9780 & 0.9986 & 0.9983 \\
+CDA-SAC (flat) & 0.9992 & 0.9970 & 0.9963 & 0.9998 \\
+Recursive-credit H128 & 0.9992 & 0.9640 & 0.9498 & 0.9967 \\
+\bottomrule
+\end{tabular}
+\begin{flushleft}\footnotesize
+User attachment is identical for all methods ($J=0.9992$) because attachment is fixed by the shared ROCS-0 weighted-refill scheduler rather than by the learned controller. The proposed method shows the lowest $J(\mathrm{power})=0.8475$: it deliberately concentrates NOMA backhaul power on the backhaul-limited relays 1--2 ($1.95/1.57$~W vs.\ $0.76/0.71$~W for relays 3--4); even so relays 1--2 remain backhaul-limited (load ratio $1.23/1.15$) while relays 3--4 operate below capacity ($0.83/0.78$), and per-relay QSR stays balanced ($J=0.9975$; per-relay $0.762$--$0.854$). TD3 keeps power nearly uniform ($J=0.9932$) while all four of its relays remain backhaul-congested (load ratio $\geq 1.15$) and its per-relay QSR is uniformly lower ($0.749$--$0.787$). See Fig.~7.
+\end{flushleft}
+\end{table}
